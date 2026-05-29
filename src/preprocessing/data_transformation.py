@@ -54,47 +54,29 @@ class TransformData:
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
     """Apply all transformation methods to the cleaned data source"""
     transform = TransformData(df)
-    transform.encode_one_hot(col='radial_highway_access_idx_rad')
+    transform.encode_one_hot(col='')
     transform.convert_percent_to_decimal(
         percentage_cols=[
-            'large_lot_zoning_ratio_zn', 
-            'non_retail_acre_ratio_indus', 
-            'pre_1940_housing_ratio_age', 
-            'low_ses_population_pct_lstat'
+            
         ]
     )
-    transform.convert_tax_rate_to_decimal('property_tax_rate_tax')
-    transform.scale_price('price')
+    transform.convert_tax_rate_to_decimal('')
+    transform.scale_price('')
     transform.reverse_negative_skew(
         flip_cols=[
-            'pre_1940_housing_ratio_age',
-            'pupil_teacher_ratio_ptratio',
-            'population_distribution_popul'
+            
         ]
     )
     transform.log_transform_plus_one(
         log_cols=[
-            'crime_rate_per_capita_crim', 
-            'large_lot_zoning_ratio_zn', 
-            'non_retail_acre_ratio_indus',
-            'nox_concentration_nox',
-            'pre_1940_housing_ratio_age_flip',
-            'employment_center_distance_dis',
-            'property_tax_rate_tax',
-            'pupil_teacher_ratio_ptratio_flip',
-            'population_distribution_popul_flip',
-            'low_ses_population_pct_lstat',
-            'price'
+            
         ]
     )
 
     # find sum of outliers in jupyter to generate outlier_cols
     transform.detect_iqr_outlier(
         outlier_cols=[
-            'crime_rate_per_capita_crim_log',
-            'large_lot_zoning_ratio_zn_log',
-            'low_ses_population_pct_lstat_log',
-            'price'
+            
         ]
     )
     return transform.get_dataframe()

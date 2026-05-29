@@ -13,7 +13,7 @@ class EDA:
 
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
-        self.parent_path = "/Users/phillipsmith/Desktop/pythonProjects/real-estate-price-prediction/docs"
+        self.parent_path = "/Users/phillipsmith/Desktop/Python/quote_decision_predictor/docs"
 
     def plot_histogram_fd(self, vars_freedman_diaconis, subdir="eda_histograms"):
         path = os.path.join(self.parent_path, subdir)
@@ -85,18 +85,7 @@ def explore_data(df: pd.DataFrame) -> pd.DataFrame:
     explore = EDA(df)
     explore.plot_histogram_fd(
         vars_freedman_diaconis=[
-            'crime_rate_per_capita_crim_log',
-            'large_lot_zoning_ratio_zn_log',
-            'non_retail_acre_ratio_indus_log',
-            'nox_concentration_nox_log',
-            'avg_rooms_per_dwelling_rm',
-            'pre_1940_housing_ratio_age_flip_log',
-            'employment_center_distance_dis_log',
-            'property_tax_rate_tax_log',
-            'pupil_teacher_ratio_ptratio_flip_log',
-            'population_distribution_popul_flip_log',
-            'low_ses_population_pct_lstat_log',
-            'price'
+            
         ]
     )
     explore.plot_binary_counts(
@@ -104,36 +93,12 @@ def explore_data(df: pd.DataFrame) -> pd.DataFrame:
     )
     explore.plot_scatter_plot(
         vars=[
-            ("crime_rate_per_capita_crim_log", "price"),
-            ("large_lot_zoning_ratio_zn_log", "price"),
-            ("non_retail_acre_ratio_indus_log", "price"),
-            ("nox_concentration_nox_log", "price"),
-            ("avg_rooms_per_dwelling_rm", "price"),
-            ("pre_1940_housing_ratio_age_flip_log", "price"),
-            ("employment_center_distance_dis_log", "price"),
-            ("property_tax_rate_tax_log", "price"),
-            ("pupil_teacher_ratio_ptratio_flip_log", "price"),
-            ("population_distribution_popul_flip_log", "price"),
-            ("low_ses_population_pct_lstat_log", "price")
+            ("x_col", "y_col"),
         ]
     )
     explore.plot_correlation_matrix(
         remove_cols=[
-            'crime_rate_per_capita_crim', 
-            'large_lot_zoning_ratio_zn', 
-            'non_retail_acre_ratio_indus',
-            'nox_concentration_nox',
-            'pre_1940_housing_ratio_age',
-            'pre_1940_housing_ratio_age_flip',
-            'employment_center_distance_dis',
-            'property_tax_rate_tax',
-            'pupil_teacher_ratio_ptratio',
-            'pupil_teacher_ratio_ptratio_flip',
-            'population_distribution_popul',
-            'population_distribution_popul_flip',
-            'low_ses_population_pct_lstat',
-            'price_outlier',
-            'price_log'
+            'col_name',
         ]
     )
 

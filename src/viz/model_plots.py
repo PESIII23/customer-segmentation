@@ -11,7 +11,7 @@ class ModelPlots:
     _logger = logging.getLogger(__name__ + "." + __qualname__)
 
     def __init__(self, y_pred, y_test, X_test, X):
-        self.parent_path = "/Users/phillipsmith/Desktop/pythonProjects/real-estate-price-prediction/docs"
+        self.parent_path = "/Users/phillipsmith/Desktop/Python/quote_decision_predictor/docs"
         self.y_pred = y_pred
         self.y_test = y_test
         self.X_test = X_test

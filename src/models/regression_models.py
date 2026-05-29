@@ -135,11 +135,12 @@ class Regression:
 def apply_regression(df):
     """
     Apply regression methods to the modeling data source
+    Set X and Y variables
     """
     # LINEAR REGRESSION
     linear_regression = Regression(df, test_size=.2, random_state=3)
-    X = df.drop(columns=['price', 'rad_3', 'population_distribution_popul_flip_log', 'crime_rate_per_capita_crim_log'])
-    y = df['price']
+    # X = df.drop(columns=[])
+    # y = df[]
     y_pred, y_test, X_test, model, X = linear_regression.linear_regression(X, y)
     linear_regression.print_results(y_pred, y_test, X_test, model)
     linear_reg_plots = model_plots.ModelPlots(y_pred=y_pred, y_test=y_test, X_test=X_test, X=X)
@@ -149,8 +150,8 @@ def apply_regression(df):
 
     # RANDOM FOREST
     random_forest = Regression(df, test_size=.2, random_state=3)
-    X = df.drop(columns=['price', 'population_distribution_popul_flip_log'])
-    y = df['price']
+    # X = df.drop(columns=[])
+    # y = df[]
     y_pred, y_test, X_test, model, X = random_forest.random_forest(X, y)
     random_forest.print_results(y_pred, y_test, X_test, model)
     random_forest_plots = model_plots.ModelPlots(y_pred=y_pred, y_test=y_test, X_test=X_test, X=X)
@@ -158,15 +159,15 @@ def apply_regression(df):
 
     # LASSO REGRESSION
     lasso_regression = Regression(df, test_size=.2, random_state=3)
-    X = df.drop(columns=['price'])
-    y = df['price']
+    # X = df.drop(columns=[])
+    # y = df[]
     y_pred, y_test, X_test, model, X = lasso_regression.lasso_regression(X, y)
     lasso_regression.print_results(y_pred, y_test, X_test, model)
 
     # RIDGE REGRESSION
     ridge_regression = Regression(df, test_size=.2, random_state=3)
-    X = df.drop(columns=['price', 'rad_3', 'population_distribution_popul_flip_log', 'crime_rate_per_capita_crim_log'])
-    y = df['price']
+    # X = df.drop(columns=[])
+    # y = df[]
     y_pred, y_test, X_test, model, X = ridge_regression.ridge_regression(X, y)
     ridge_regression.print_results(y_pred, y_test, X_test, model)
 
