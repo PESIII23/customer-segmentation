@@ -1,0 +1,49 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# mypy cache
+.mypy_cache/
+
+# pytest cache
+.pytest_cache/
+
+# Ruff cache
+.ruff_cache/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# AI agent files
+ai_agent_files/
+
+# Data files (keep structure, ignore large files)
+src/data/raw/*.xlsx
+src/data/raw/*.csv
+src/data/processed/*.parquet
+src/data/processed/*.csv
+
+# Environment variables
+.env
