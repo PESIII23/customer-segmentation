@@ -45,8 +45,8 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         STAGE 1: INGEST DATA
         """
         log("\n[1/9] LOADING DATA FROM SOURCE FILE...\n")
-        df = pd.read_excel(Paths.RAW_FILE, header=1)
-        df.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
+        df = pd.read_excel(Paths.RAW_FILE, header=0)
+        print(df.columns)
         log(f"      Loaded {len(df):,} records.")
         log(f"      DataFrame shape: {df.shape}\n")
         
@@ -56,6 +56,7 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         # log("\n[2/9] CLEANING DATA...\n")
         # df = pd.read_parquet(Paths.RAW_PARQUET, engine='fastparquet')
         # df_cleaned = data_preparation.clean_data(df)
+        # df_cleaned.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
         # missing = data_preparation.CleanData(df_cleaned).is_missing_vals()
         # if missing:
         #     log("      WARNING: Missing values detected in cleaned data.\n")
@@ -66,6 +67,7 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         # STAGE 3: TRANSFORM DATA
         # """
         # log("\n[3/9] TRANSFORMING DATA...\n")
+        # df.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
         # df_transformed = data_transformation.transform_data(df_cleaned)
         # log("      Data is transformed.\n")
 
@@ -112,7 +114,7 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         log("\n" + "=" * 60)
         log("PIPELINE COMPLETE")
         log("=" * 60 + '\n')
-        log(f"Modeling DataFrame: {df_modeled.shape}\n")
+        # log(f"Modeling DataFrame: {df_modeled.shape}\n")
         
         return
 
