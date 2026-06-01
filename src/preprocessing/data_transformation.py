@@ -10,12 +10,6 @@ class TransformData:
 
     def __init__(self, df: pd.DataFrame):
         self.df = df.copy()
-    
-    def encode_one_hot(self, col):
-        """Refactor to encode list of variables"""
-        dummies = pd.get_dummies(self.df[col], prefix='rad').astype(int)
-        self.df = self.df.drop(columns=col).merge(dummies, left_index=True, right_index=True)
-        return self.df
 
     def convert_percent_to_decimal(self, percentage_cols):
         self.df[percentage_cols] = self.df[percentage_cols] / 100
@@ -54,29 +48,4 @@ class TransformData:
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
     """Apply all transformation methods to the cleaned data source"""
     transform = TransformData(df)
-    transform.encode_one_hot(col='')
-    transform.convert_percent_to_decimal(
-        percentage_cols=[
-            
-        ]
-    )
-    transform.convert_tax_rate_to_decimal('')
-    transform.scale_price('')
-    transform.reverse_negative_skew(
-        flip_cols=[
-            
-        ]
-    )
-    transform.log_transform_plus_one(
-        log_cols=[
-            
-        ]
-    )
-
-    # find sum of outliers in jupyter to generate outlier_cols
-    transform.detect_iqr_outlier(
-        outlier_cols=[
-            
-        ]
-    )
     return transform.get_dataframe()

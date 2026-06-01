@@ -88,8 +88,6 @@ src/notebooks/quote_decision_model.ipynb.
 
 ## Support
 
-* Maintainer: Data Science Team
-* Documentation: docs/
-* Repository: [GitHub Repository URL]
-
-This mirrors the structure and tone of your original Real Estate README while remaining implementation-agnostic. 
+* Maintainer: Phillip Smith
+* Documentation: [Milestone 1](https://docs.google.com/document/d/1d_OWABJuWxOc7XirqNIVVhhuZt3xJWAoKOeZA1D3iBs/edit?usp=sharing) | 
+* Repository: [GitHub](https://github.com/PESIII23/quote_decision_predictor)

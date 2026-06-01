@@ -9,7 +9,8 @@ Orchestrates the end-to-end quote decision analysis workflow:
     5. Export modeling-ready DataFrame
 
 Usage:
-    CLI:      python -m src.pipeline
+    CLI:      python3 -m src.pipeline
+    ENV:      conda deactivate quotes --> conda activate quotes
     Python:   from src.pipeline import run_pipeline; full_df, modeling_df = run_pipeline()
 """
 import pandas as pd
@@ -45,22 +46,23 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         STAGE 1: INGEST DATA
         """
         log("\n[1/9] LOADING DATA FROM SOURCE FILE...\n")
-        df = pd.read_excel(Paths.RAW_FILE, header=1)
-        df.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
+        df = pd.read_excel(Paths.RAW_FILE, header=0)
+        print(df.columns)
         log(f"      Loaded {len(df):,} records.")
         log(f"      DataFrame shape: {df.shape}\n")
         
-        # """
-        # STAGE 2: CLEAN DATA
-        # """
-        # log("\n[2/9] CLEANING DATA...\n")
-        # df = pd.read_parquet(Paths.RAW_PARQUET, engine='fastparquet')
-        # df_cleaned = data_preparation.clean_data(df)
+        """
+        STAGE 2: CLEAN DATA
+        """
+        log("\n[2/9] CLEANING DATA...\n")
+        df_cleaned = data_preparation.clean_data(df)
+        # df_cleaned.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
+        # df_cleaned = pd.read_parquet(Paths.RAW_PARQUET, engine='fastparquet')
         # missing = data_preparation.CleanData(df_cleaned).is_missing_vals()
         # if missing:
         #     log("      WARNING: Missing values detected in cleaned data.\n")
         #     # apply imputation or other missing data approaches
-        # log(f"      Data is cleaned.\n")
+        log(f"      Data is cleaned.\n")
 
         # """
         # STAGE 3: TRANSFORM DATA
@@ -112,7 +114,7 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         log("\n" + "=" * 60)
         log("PIPELINE COMPLETE")
         log("=" * 60 + '\n')
-        log(f"Modeling DataFrame: {df_modeled.shape}\n")
+        # log(f"Modeling DataFrame: {df_modeled.shape}\n")
         
         return
 
