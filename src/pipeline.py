@@ -56,27 +56,27 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         log("\n[2/9] CLEANING DATA...\n")
         df_cleaned = data_preparation.clean_data(df)
-        # df_cleaned.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
-        # df_cleaned = pd.read_parquet(Paths.RAW_PARQUET, engine='fastparquet')
         # missing = data_preparation.CleanData(df_cleaned).is_missing_vals()
         # if missing:
         #     log("      WARNING: Missing values detected in cleaned data.\n")
         #     # apply imputation or other missing data approaches
         log(f"      Data is cleaned.\n")
 
-        # """
-        # STAGE 3: TRANSFORM DATA
-        # """
-        # log("\n[3/9] TRANSFORMING DATA...\n")
-        # df_transformed = data_transformation.transform_data(df_cleaned)
-        # log("      Data is transformed.\n")
+        """
+        STAGE 3: TRANSFORM DATA
+        """
+        log("\n[3/9] TRANSFORMING DATA...\n")
+        df_transformed = data_transformation.transform_data(df_cleaned)
+        df_transformed.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
+        df_transformed = pd.read_parquet(Paths.RAW_PARQUET, engine='fastparquet')
+        log("      Data is transformed.\n")
 
-        # """
-        # STAGE 4: EXPLORATORY DATA ANALYSIS
-        # """
-        # log("\n[4/9] PERFORMING EDA...\n")
-        # df_correlated = eda.explore_data(df_transformed)
-        # log("      Generated EDA plots. Please see docs/eda_*.\n")
+        """
+        STAGE 4: EXPLORATORY DATA ANALYSIS
+        """
+        log("\n[4/9] PERFORMING EDA...\n")
+        df_correlated = eda.explore_data(df_transformed)
+        log("      Generated EDA plots. Please see docs/eda_*.\n")
 
         # """
         # STAGE 5: FEATURE ENGINEERING

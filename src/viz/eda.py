@@ -20,7 +20,8 @@ class EDA:
         os.makedirs(path, exist_ok=True)
 
         for var in vars_freedman_diaconis:
-            fig, ax = plt.subplots(figsize=(10,4))
+            fig, ax = plt.subplots(figsize=(10, 6))
+
             sns.histplot(
                 self.df[var],
                 bins='fd',
@@ -29,7 +30,21 @@ class EDA:
                 ax=ax
             )
 
+            # Add count labels above each bin
+            for patch in ax.patches:
+                height = patch.get_height()
+                if height > 0:
+                    ax.annotate(
+                        f'{int(height)}',
+                        (patch.get_x() + patch.get_width() / 2, height),
+                        ha='center',
+                        va='bottom',
+                        fontsize=8
+                    )
+
             ax.set_title(var)
+
+            plt.tight_layout()
             plt.savefig(f"{path}/{var}_hist.png")
             plt.close()
 
@@ -38,13 +53,21 @@ class EDA:
         os.makedirs(path, exist_ok=True)
 
         for var in vars_binary:
-            fig, ax = plt.subplots(figsize=(10,4))
+            fig, ax = plt.subplots(figsize=(10, 6))
+
             sns.countplot(
-                x=var, 
-                data=self.df
+                x=var,
+                data=self.df,
+                ax=ax
             )
 
+            # Add count labels above bars
+            for container in ax.containers:
+                ax.bar_label(container, fmt='%d', padding=3)
+
             ax.set_title(var)
+
+            plt.tight_layout()
             plt.savefig(f"{path}/{var}_cnt.png")
             plt.close()
 
@@ -69,7 +92,7 @@ class EDA:
         os.makedirs(path, exist_ok=True)
         df_correlated = self.df.drop(columns=remove_cols)
         correlation_matrix = df_correlated.corr()
-        plt.figure(figsize=(25, 30))
+        plt.figure(figsize=(25, 25))
         sns.heatmap(correlation_matrix, annot=True, cmap='RdYlBu')
         plt.savefig(f"{path}/corr_matrix.png")
         plt.close()
@@ -85,20 +108,35 @@ def explore_data(df: pd.DataFrame) -> pd.DataFrame:
     explore = EDA(df)
     explore.plot_histogram_fd(
         vars_freedman_diaconis=[
-            
+            'EDU_PH',
+            'DRIVE_RISK',
+            'AGE_CAR',
+            'AVG_MILE_DAILY',
+            'ANNUAL_MILE',
+            'NUM_CAR',
+            'DRIVE_XP'
         ]
     )
+
     explore.plot_binary_counts(
-        vars_binary=['river_boundary_flag_chas']
+        vars_binary=[
+            'TYPE_Q',
+            'STAT_Q',
+            'SEX',
+            'HOME_STAT',
+            'OWN_CAR'
+            ]
     )
-    explore.plot_scatter_plot(
-        vars=[
-            ("x_col", "y_col"),
-        ]
-    )
+
+    # explore.plot_scatter_plot(
+    #     vars=[
+    #         ("x_col", "y_col"),
+    #     ]
+    # )
     explore.plot_correlation_matrix(
         remove_cols=[
-            'col_name',
+            'STAT_Q',
+            'ID'
         ]
     )
 
