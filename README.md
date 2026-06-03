@@ -101,6 +101,6 @@ src/notebooks/quote_decision_model.ipynb.
 
 ## Support
 
-* Maintainer: Phillip Smith
+* Maintainer: [Phillip Smith](https://www.linkedin.com/in/pesiii/)
 * Documentation: [Milestone 1](https://docs.google.com/document/d/1d_OWABJuWxOc7XirqNIVVhhuZt3xJWAoKOeZA1D3iBs/edit?usp=sharing) | 
 * Repository: [GitHub](https://github.com/PESIII23/quote_decision_predictor)
