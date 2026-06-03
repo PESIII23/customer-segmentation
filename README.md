@@ -7,19 +7,35 @@ Predictive machine learning system for insurance quote approval decisions using 
 ## Project Structure
 
 ```text
-src/
-├── preprocessing/
-│   ├── data_prep.py             # Cleaning, wrangling, train/test split
-│   └── feature_engineering.py   # Feature creation and transformation
-├── models/
-│   └── model.py                 # Model definitions, training, evaluation
-├── notebooks/
-│   └── quote_decision_model.ipynb  # EDA and modeling notebook
-├── data/
-│   ├── raw/                     # Source quote and customer data
-│   └── processed/               # Cleaned data outputs
-└── viz/
-    └── plotting.py              # Reusable visualization utilities
+.
+├── .gitignore
+├── README.md
+├── requirements.txt
+├── docs/
+│   ├── .gitkeep
+│   ├── eda_correlations/
+│   ├── eda_countplots/
+│   └── eda_histograms/
+└── src/
+    ├── __init__.py
+    ├── pipeline.py
+    ├── preprocessing/
+    │   ├── __init__.py
+    │   ├── data_preparation.py
+    │   ├── data_transformation.py
+    │   └── feature_engineering.py
+    ├── models/
+    │   ├── __init__.py
+    │   └── regression_models.py
+    ├── data/
+    │   ├── raw/
+    │   └── processed/
+    ├── viz/
+    │   ├── __init__.py
+    │   ├── eda.py
+    │   └── model_plots.py
+    └── notebooks/
+        └── quote_decision_predictor.ipynb
 ```
 
 ---
@@ -29,8 +45,7 @@ src/
 **1. Create a virtual environment:**
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+conda create --name myenv
 ```
 
 **2. Install dependencies:**
