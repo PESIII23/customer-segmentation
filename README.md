@@ -7,7 +7,6 @@ Predictive machine learning system for insurance quote approval decisions using 
 ## Project Structure
 
 ```text
-.
 ├── .gitignore
 ├── README.md
 ├── requirements.txt
@@ -37,7 +36,6 @@ Predictive machine learning system for insurance quote approval decisions using 
     └── notebooks/
         └── quote_decision_predictor.ipynb
 ```
-
 ---
 
 ## Quick Start
