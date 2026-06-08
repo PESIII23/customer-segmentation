@@ -10,12 +10,12 @@ Orchestrates the end-to-end quote decision analysis workflow:
 
 Usage:
     CLI:      python3 -m src.pipeline
-    ENV:      conda deactivate quotes --> conda activate quotes
+    ENV:      conda deactivate --> conda activate quotes
     Python:   from src.pipeline import run_pipeline; full_df, modeling_df = run_pipeline()
 """
 import pandas as pd
 from pathlib import Path
-from src.preprocessing import data_preparation, data_transformation, feature_engineering
+from src.preprocessing import data_preparation, data_transformation, feature_selection
 from src.viz import eda, model_plots
 from src.models import regression_models
 
@@ -75,23 +75,18 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         STAGE 4: EXPLORATORY DATA ANALYSIS
         """
         log("\n[4/9] PERFORMING EDA...\n")
-        df_correlated = eda.explore_data(df_transformed)
+        eda.explore_data(df_transformed)
         log("      Generated EDA plots. Please see docs/eda_*.\n")
 
-        # """
-        # STAGE 5: FEATURE ENGINEERING
-        # """
-        # log("\n[5/9] ENGINEERING FEATURES...\n")
-        # engineer = feature_engineering.FeatureEngineer(df_correlated, n_splits=10, n_neighbors=10)
-        # # get baseline error
-        # X = df_correlated.drop(columns='price')
-        # y = df_correlated['price']
-        # rmse, r2 = engineer.evaluate_error(X, y)
-        # print(f"      BASELINE ERROR: RMSE={rmse} --> R^2={r2}")
-        # # get SFS error and engineered dataframe
-        # df_modeled = feature_engineering.engineer_features(df_correlated)
-        # log(f"      Created {len(df_modeled.columns) - 1} input features.")
-        # log(df_modeled.columns)
+        """
+        STAGE 5: FEATURE SELECTION
+        """
+        log("\n[5/9] SELECTING FEATURES...\n")
+        log("      Evaluating optimal neighbors for cross validation.\n")
+        evaluate_neighbors = feature_selection.evaluate_neighbors(df_transformed)
+        print(evaluate_neighbors)
+        # df_engineered = feature_engineering.engineer_features(df_transformed)
+
         
         # """
         # STAGE 6: EXPORT MODELING DATAFRAME

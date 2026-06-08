@@ -20,7 +20,7 @@ class EDA:
         os.makedirs(path, exist_ok=True)
 
         for var in vars_freedman_diaconis:
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig, ax = plt.subplots(figsize=(14, 8))
 
             sns.histplot(
                 self.df[var],
@@ -100,12 +100,82 @@ class EDA:
         self.df = df_correlated
         return self.df
 
+    def plot_binned_dist(self, col, bins, labels, subdir="eda_binned"):
+        path = os.path.join(self.parent_path, subdir)
+        os.makedirs(path, exist_ok=True)
+    
+        col_raw=self.df[[col]].copy()
+        col_bins=bins
+        col_labels=labels
+        col_raw[f"{col}_bin"] = pd.cut(col_raw[col], bins=col_bins, labels=col_labels, include_lowest=True)
+        col_raw[f"{col}_bin"] = (col_raw[f"{col}_bin"].cat.add_categories('NaN').fillna('NaN'))
+
+        x_var = f"{col}_bin"
+        plt.figure(figsize=(12, 8))
+        plt.title(f"{col} Binned")
+        ax = sns.histplot(data=col_raw, x=x_var)
+        ax.bar_label(ax.containers[0], padding=3, fmt='%.0f')
+        ax.margins(y=0.1)
+        
+        plt.savefig(f"{path}/{col}_binned.png")
+        plt.close()
+
+    def plot_binned_binary(self, col, target_col, bins, labels, subdir="eda_binned"):
+        path = os.path.join(self.parent_path, subdir)
+        os.makedirs(path, exist_ok=True)
+    
+        col_raw=self.df[[col, target_col]].copy()
+        col_bins=bins
+        col_labels=labels
+
+        col_raw[f"{col}_bin"] = pd.cut(
+            col_raw[col], 
+            bins=col_bins, 
+            labels=col_labels, 
+            include_lowest=True
+        )
+
+        col_raw[f"{col}_bin"] = (
+            col_raw[f"{col}_bin"]
+            .cat.add_categories('NaN')
+            .fillna('NaN')
+        )
+
+        col_raw[target_col] = col_raw[target_col].map({
+            0: 'Denied',
+            1: 'Approved'
+        })
+
+        plt.figure(figsize=(12, 8))
+
+        ax = sns.countplot(
+            data=col_raw, 
+            x=f"{col}_bin",
+            hue=target_col
+        )
+        ax.bar_label(ax.containers[0], padding=3, fmt='%.0f')
+        ax.bar_label(ax.containers[1], padding=3, fmt='%.0f')
+        ax.margins(y=0.1)
+        
+
+        plt.title(f"{target_col} Decision Binned by {col}")
+        plt.xticks(rotation=45)
+        
+        plt.savefig(f"{path}/{target_col}_binned_by_{col}.png")
+        plt.close()
+
     def get_dataframe(self) -> pd.DataFrame:
         return self.df
 
 def explore_data(df: pd.DataFrame) -> pd.DataFrame:
     """Generate EDA from the transformed data source"""
     explore = EDA(df)
+
+    bins = [17, 25, 35, 45, 55, 65, 75, 85, 95, 105]
+    labels = ['17-25', '26-35', '36-45', '46-55', '56-65', '66-75', '76-85', '86-95', '96+']
+    explore.plot_binned_dist('AGE_PH', bins, labels)
+    explore.plot_binned_binary('AGE_PH', 'STAT_Q', bins, labels)
+    
     explore.plot_histogram_fd(
         vars_freedman_diaconis=[
             'EDU_PH',
@@ -128,16 +198,11 @@ def explore_data(df: pd.DataFrame) -> pd.DataFrame:
             ]
     )
 
-    # explore.plot_scatter_plot(
-    #     vars=[
-    #         ("x_col", "y_col"),
-    #     ]
-    # )
     explore.plot_correlation_matrix(
         remove_cols=[
             'STAT_Q',
-            'ID'
+            'ID',
+            'AGE_PH',
+            'ANNUAL_MILE'
         ]
     )
-
-    return explore.get_dataframe()
