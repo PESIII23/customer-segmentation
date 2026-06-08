@@ -75,16 +75,19 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         STAGE 4: EXPLORATORY DATA ANALYSIS
         """
         log("\n[4/9] PERFORMING EDA...\n")
-        eda.explore_data(df_transformed)
+        df_eda = eda.explore_data(df_transformed)
         log("      Generated EDA plots. Please see docs/eda_*.\n")
+        print(df_eda.columns)
 
         """
         STAGE 5: FEATURE SELECTION
         """
         log("\n[5/9] SELECTING FEATURES...\n")
         log("      Evaluating optimal neighbors for cross validation.\n")
-        evaluate_neighbors = feature_selection.evaluate_neighbors(df_transformed)
-        print(evaluate_neighbors)
+        selector = feature_selection.FeatureSelector(df_eda, n_splits=5)
+        results = selector.evaluate_neighbors()
+        print(results)
+
         # df_engineered = feature_engineering.engineer_features(df_transformed)
 
         
