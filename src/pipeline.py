@@ -15,7 +15,7 @@ Usage:
 """
 import pandas as pd
 from pathlib import Path
-from src.preprocessing import data_preparation, data_transformation, feature_selection
+from src.preprocessing import cross_validation, data_preparation, data_transformation
 from src.viz import eda, model_plots
 from src.models import regression_models
 
@@ -80,15 +80,13 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         print(df_eda.columns)
 
         """
-        STAGE 5: FEATURE SELECTION
+        STAGE 5: CROSS VALIDATION
         """
-        log("\n[5/9] SELECTING FEATURES...\n")
+        log("\n[5/9] CROSS VALIDAATING...\n")
         log("      Evaluating optimal neighbors for cross validation.\n")
-        selector = feature_selection.FeatureSelector(df_eda, n_splits=5)
-        results = selector.evaluate_neighbors()
+        cross_validate = cross_validation.CrossValidation(df_eda, n_splits=5)
+        results = cross_validate.get_n_neighbors()
         print(results)
-
-        # df_engineered = feature_engineering.engineer_features(df_transformed)
 
         
         # """

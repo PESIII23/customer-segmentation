@@ -201,8 +201,8 @@ def explore_data(df: pd.DataFrame) -> pd.DataFrame:
     explore.plot_correlation_matrix(
         remove_cols=[
             'ID',
-            'AGE_PH',
-            'ANNUAL_MILE'
+            'ANNUAL_MILE',
+            'DRIVE_XP'
         ]
     )
 

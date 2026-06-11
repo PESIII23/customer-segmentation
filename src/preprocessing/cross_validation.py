@@ -1,5 +1,5 @@
 """
-Determine optimal feature selector for ML model inputs...
+Perform cross validation to evaluate model performance
 """
 import pandas as pd
 import logging
@@ -13,7 +13,7 @@ from sklearn.metrics import f1_score, mean_squared_error, precision_score, r2_sc
 # from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from math import sqrt
 
-class FeatureSelector:
+class CrossValidation:
     _logger = logging.getLogger(__name__ + "." + __qualname__)
 
     def __init__(self, df: pd.DataFrame, n_splits=5):
@@ -24,7 +24,7 @@ class FeatureSelector:
             random_state=0
         )
 
-    def evaluate_neighbors(self) :
+    def get_n_neighbors(self) :
 
         X = self.df.drop(columns=['STAT_Q'])
         y = self.df['STAT_Q']
@@ -75,12 +75,9 @@ class FeatureSelector:
 
 def select_features(df: pd.DataFrame) -> pd.DataFrame:
 
-    selector = FeatureSelector(df, n_splits=5, n_neighbors=40)
+    cross_validate = CrossValidation(df, n_splits=5, n_neighbors=40)
 
     X = df.drop(columns=['STAT_Q'])
     y = df['STAT_Q']
 
-    return 
-
-    # print(f"      SEQUENTIAL FORWARD SELECTION ERROR: RMSE={rmse} --> R^2={r2}")
-    # return pd.concat([X, y], axis=1)
+    return
