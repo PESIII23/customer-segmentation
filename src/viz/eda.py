@@ -202,7 +202,8 @@ def explore_data(df: pd.DataFrame) -> pd.DataFrame:
         remove_cols=[
             'ID',
             'ANNUAL_MILE',
-            'DRIVE_XP'
+            'DRIVE_XP',
+            'ZIP'
         ]
     )
 

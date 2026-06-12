@@ -69,6 +69,9 @@ Prefer incremental updates. Validate after every step.
 ### Backward Compatibility
 Before modifying existing modules, identify all callers and evaluate downstream impact.
 
+### Code Comment Style
+Keep comments concise — short and high-signal. Prefer a one-line rationale over multi-line explanation. Do not narrate what the code obviously does; comment only the *why* or non-obvious tradeoffs. Trim docstrings to essentials (purpose, key constraints, usage) — no verbose multi-paragraph blocks or long inline option lists.
+
 ---
 
 ## SECTION 3: FILE MODIFICATION SAFETY

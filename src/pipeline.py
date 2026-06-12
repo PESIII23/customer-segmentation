@@ -15,9 +15,9 @@ Usage:
 """
 import pandas as pd
 from pathlib import Path
-from src.preprocessing import cross_validation, data_preparation, data_transformation
+from src.preprocessing import data_preparation, data_transformation, feature_selection
 from src.viz import eda, model_plots
-from src.models import regression_models
+from src.models import classifiers
 
 PROJECT_ROOT = Path('/Users/phillipsmith/Desktop/Python/quote_decision_predictor')
 
@@ -80,30 +80,22 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
         print(df_eda.columns)
 
         """
-        STAGE 5: CROSS VALIDATION
+        STAGE 5: FEATURE SELECTION
         """
-        log("\n[5/9] CROSS VALIDAATING...\n")
-        log("      Evaluating optimal neighbors for cross validation.\n")
-        cross_validate = cross_validation.CrossValidation(df_eda, n_splits=5)
-        results = cross_validate.get_n_neighbors()
-        print(results)
+        log("\n[5/9] SELECTING FEATURES...\n")
+        selector = feature_selection.FeatureSelection(df_eda)
+        df_modeling = selector.run(verbose=verbose)
+        log(f"\n      Modeling DataFrame shape: {df_modeling.shape}\n")
 
-        
-        # """
-        # STAGE 6: EXPORT MODELING DATAFRAME
-        # """
-        # log("\n[6/9] EXPORTING MODELING DATA...\n")
-        # Paths.MODELING_DATA.parent.mkdir(parents=True, exist_ok=True)
-        # df_modeled.to_parquet(Paths.MODELING_DATA, engine='fastparquet', index=False)
-        # log(f"      Exported modeling dataframe with {len(df_modeled.columns)} total features.")
+        """
+        STAGE 6: MODELING
+        """
+        log("\n[6/9] TRAINING AND EVALUATING MODELS...\n")
+        results = classifiers.run_models(df_modeling, verbose=verbose)
+        log("\n      Model comparison (sorted by ROC-AUC):")
+        log(results.to_string(index=False))
+        log("\n      ROC curves saved to docs/model_plots/roc_curves.png\n")
 
-        # """
-        # STAGE 7: APPLY REGRESSION MODELS TO DATAFRAME
-        # """
-        # log("\n[7/9] APPLYING REGRESSION AND EVALUATING MODELS...\n")
-        # df = pd.read_parquet(Paths.MODELING_DATA, engine='fastparquet')
-        # regression_models.apply_regression(df)
-        
         """
         FOOTER
         """
