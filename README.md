@@ -102,5 +102,5 @@ src/notebooks/quote_decision_model.ipynb.
 ## Support
 
 * Maintainer: [Phillip Smith](https://www.linkedin.com/in/pesiii/)
-* Documentation: [Milestone 1](https://docs.google.com/document/d/1M43cbNQzoAPAAhHK-ZW1Ia8ry9_iFtyq2xDQpVXLgFs/edit?usp=sharing) | [Milestone 2](https://docs.google.com/document/d/1ls9caSWwhoR-bo1eaZKouq-BdE0Qbyw4ter_Pcy6RnE/edit?usp=sharing)
+* Documentation: [Milestone 1](https://docs.google.com/document/d/1M43cbNQzoAPAAhHK-ZW1Ia8ry9_iFtyq2xDQpVXLgFs/edit?usp=sharing) | [Milestone 2](https://docs.google.com/document/d/1ls9caSWwhoR-bo1eaZKouq-BdE0Qbyw4ter_Pcy6RnE/edit?usp=sharing) | [Milestone 3](https://docs.google.com/presentation/d/1SVVCicHVZv8wCpy6L83NVQk5oki0fpbo/edit?usp=sharing&ouid=105590657433449326936&rtpof=true&sd=true)
 * Repository: [GitHub](https://github.com/PESIII23/quote_decision_predictor)
