@@ -1,0 +1,221 @@
+{
+  "raw_rows": 379979,
+  "raw_cols": [
+    "InvoiceNo",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "UnitPrice",
+    "CustomerID",
+    "Country"
+  ],
+  "raw_numeric_describe": {
+    "Quantity": {
+      "count": 379979.0,
+      "mean": 12.13,
+      "std": 256.59,
+      "min": -80995.0,
+      "25%": 2.0,
+      "50%": 5.0,
+      "75%": 12.0,
+      "max": 80995.0
+    },
+    "UnitPrice": {
+      "count": 379979.0,
+      "mean": 3.48,
+      "std": 71.7,
+      "min": 0.0,
+      "25%": 1.25,
+      "50%": 1.95,
+      "75%": 3.75,
+      "max": 38970.0
+    }
+  },
+  "cleaning_report": {
+    "rows_start": 379979,
+    "dropped_duplicates": 4729,
+    "dropped_cancellations": 8191,
+    "dropped_nonproduct": 1448,
+    "dropped_nonpositive": 30,
+    "rows_end": 365581
+  },
+  "snapshot_date": "2021-12-10",
+  "n_customers": 4214,
+  "numeric_summary_transactions": {
+    "QUANTITY": {
+      "count": 365581.0,
+      "mean": 13.22,
+      "median": 6.0,
+      "std": 186.62,
+      "min": 1.0,
+      "25%": 2.0,
+      "50%": 6.0,
+      "75%": 12.0,
+      "max": 80995.0
+    },
+    "UNIT_PRICE": {
+      "count": 365581.0,
+      "mean": 2.86,
+      "median": 1.79,
+      "std": 4.23,
+      "min": 0.04,
+      "25%": 1.25,
+      "50%": 1.79,
+      "75%": 3.75,
+      "max": 649.5
+    },
+    "TOTAL_PRICE": {
+      "count": 365581.0,
+      "mean": 22.35,
+      "median": 12.3,
+      "std": 320.97,
+      "min": 0.06,
+      "25%": 4.95,
+      "50%": 12.3,
+      "75%": 19.8,
+      "max": 168469.6
+    }
+  },
+  "numeric_summary_rfm": {
+    "RECENCY": {
+      "count": 4214.0,
+      "mean": 84.93,
+      "median": 48.0,
+      "std": 90.2,
+      "min": 1.0,
+      "25%": 17.0,
+      "50%": 48.0,
+      "75%": 128.0,
+      "max": 340.0
+    },
+    "FREQUENCY": {
+      "count": 4214.0,
+      "mean": 4.04,
+      "median": 2.0,
+      "std": 7.04,
+      "min": 1.0,
+      "25%": 1.0,
+      "50%": 2.0,
+      "75%": 4.0,
+      "max": 185.0
+    },
+    "MONETARY": {
+      "count": 4214.0,
+      "mean": 1939.26,
+      "median": 654.21,
+      "std": 8587.73,
+      "min": 3.75,
+      "25%": 301.38,
+      "50%": 654.21,
+      "75%": 1582.75,
+      "max": 270561.14
+    },
+    "AVG_ORDER_VALUE": {
+      "count": 4214.0,
+      "mean": 420.39,
+      "median": 294.18,
+      "std": 1826.35,
+      "min": 3.75,
+      "25%": 177.8,
+      "50%": 294.18,
+      "75%": 430.0,
+      "max": 84236.25
+    }
+  },
+  "categorical_profile": [
+    {
+      "attribute": "INVOICE_ID",
+      "distinct_values": 17008,
+      "most_frequent": 576339,
+      "most_frequent_count": 541,
+      "most_frequent_pct": 0.1,
+      "missing": 0
+    },
+    {
+      "attribute": "STOCK_CODE",
+      "distinct_values": 3590,
+      "most_frequent": "85123A",
+      "most_frequent_count": 1816,
+      "most_frequent_pct": 0.5,
+      "missing": 0
+    },
+    {
+      "attribute": "DESCRIPTION",
+      "distinct_values": 3778,
+      "most_frequent": "WHITE HANGING HEART T-LIGHT HOLDER",
+      "most_frequent_count": 1809,
+      "most_frequent_pct": 0.5,
+      "missing": 0
+    },
+    {
+      "attribute": "CUSTOMER_ID",
+      "distinct_values": 4214,
+      "most_frequent": 17841,
+      "most_frequent_count": 7381,
+      "most_frequent_pct": 2.0,
+      "missing": 0
+    },
+    {
+      "attribute": "COUNTRY",
+      "distinct_values": 36,
+      "most_frequent": "United Kingdom",
+      "most_frequent_count": 325444,
+      "most_frequent_pct": 89.0,
+      "missing": 0
+    }
+  ],
+  "monthly_revenue": {
+    "2021-01": 562682.91,
+    "2021-02": 442293.59,
+    "2021-03": 583143.85,
+    "2021-04": 454440.88,
+    "2021-05": 659242.49,
+    "2021-06": 653264.92,
+    "2021-07": 591603.79,
+    "2021-08": 635514.38,
+    "2021-09": 938752.63,
+    "2021-10": 1002326.56,
+    "2021-11": 1136534.0,
+    "2021-12": 512228.08
+  },
+  "top_countries": {
+    "United Kingdom": 325444,
+    "Germany": 8158,
+    "France": 7603,
+    "EIRE": 6799,
+    "Spain": 2343,
+    "Netherlands": 2252,
+    "Belgium": 1845,
+    "Switzerland": 1762,
+    "Portugal": 1306,
+    "Australia": 1149
+  },
+  "uk_share_pct": 89.0,
+  "rfm_correlation": {
+    "RECENCY": {
+      "RECENCY": 1.0,
+      "FREQUENCY": -0.27,
+      "MONETARY": -0.12,
+      "AVG_ORDER_VALUE": 0.01
+    },
+    "FREQUENCY": {
+      "RECENCY": -0.27,
+      "FREQUENCY": 1.0,
+      "MONETARY": 0.55,
+      "AVG_ORDER_VALUE": 0.02
+    },
+    "MONETARY": {
+      "RECENCY": -0.12,
+      "FREQUENCY": 0.55,
+      "MONETARY": 1.0,
+      "AVG_ORDER_VALUE": 0.41
+    },
+    "AVG_ORDER_VALUE": {
+      "RECENCY": 0.01,
+      "FREQUENCY": 0.02,
+      "MONETARY": 0.41,
+      "AVG_ORDER_VALUE": 1.0
+    }
+  }
+}

@@ -1,1 +1,1 @@
-# src - Root package for the real estate price prediction project.
+# src - Root package for the sales customer segmentation project.

@@ -1,0 +1,6 @@
+attribute,distinct_values,most_frequent,most_frequent_count,most_frequent_pct,missing
+INVOICE_ID,17008,576339,541,0.1,0
+STOCK_CODE,3590,85123A,1816,0.5,0
+DESCRIPTION,3778,WHITE HANGING HEART T-LIGHT HOLDER,1809,0.5,0
+CUSTOMER_ID,4214,17841,7381,2.0,0
+COUNTRY,36,United Kingdom,325444,89.0,0

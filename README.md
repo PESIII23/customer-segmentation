@@ -1,106 +1,90 @@
-# Quote Decision Predictor
+# Sales Customer Segmentation
 
-Predictive machine learning system for insurance quote approval decisions using boosted classification models and sales analytics.
+An end-to-end analytical pipeline that turns raw e-commerce transaction data into
+a clean, customer-level **RFM** (Recency, Frequency, Monetary) table for customer
+segmentation and targeted campaign recommendations.
+
+> **Project 2 — Milestone 1:** Exploratory Data Analysis & Data Cleansing Approach.
+> The graded deliverable is
+> `SMITH P2 - Exploratory Data Analysis and Data Cleansing Approach.docx` in the repo root.
 
 ---
 
 ## Project Structure
 
 ```text
-├── .gitignore
 ├── README.md
 ├── requirements.txt
+├── SMITH P2 - Exploratory Data Analysis and Data Cleansing Approach.docx   # Milestone 1 deliverable
 ├── docs/
-│   ├── .gitkeep
-│   ├── eda_correlations/
-│   ├── eda_countplots/
-│   └── eda_histograms/
+│   ├── tables/                # stat/profile tables (CSV) + eda_stats.json
+│   ├── eda_numerical/         # histograms & box plots (Quantity, Price, RFM)
+│   ├── eda_categorical/       # country, product, and monthly-revenue bars
+│   └── eda_correlation/       # RFM Pearson correlation heatmap
 └── src/
-    ├── __init__.py
-    ├── pipeline.py
+    ├── pipeline.py            # entry point: run_pipeline()
     ├── preprocessing/
-    │   ├── __init__.py
-    │   ├── data_preparation.py
-    │   ├── data_transformation.py
-    │   └── feature_engineering.py
-    ├── models/
-    │   ├── __init__.py
-    │   └── regression_models.py
-    ├── data/
-    │   ├── raw/
-    │   └── processed/
+    │   ├── data_preparation.py    # cleansing (cancellations, duplicates, service codes)
+    │   └── data_transformation.py # transaction → customer RFM aggregation
     ├── viz/
-    │   ├── __init__.py
-    │   ├── eda.py
-    │   └── model_plots.py
-    └── notebooks/
-        └── quote_decision_predictor.ipynb
+    │   └── eda.py             # tables, distributions, bars, correlation matrix
+    └── data/
+        ├── raw/               # Project_2_Sales_Data.xlsx (immutable source)
+        └── processed/         # transactions_clean.parquet, rfm_customer.{parquet,csv}
 ```
+
 ---
 
 ## Quick Start
 
-**1. Create a virtual environment:**
-
 ```bash
-conda create --name myenv
-```
+# 1. Environment
+conda create --name sales-seg python=3.13 -y && conda activate sales-seg
 
-**2. Install dependencies:**
-
-```bash
+# 2. Dependencies
 pip install -r requirements.txt
+
+# 3. Run the pipeline (Project_2_Sales_Data.xlsx must be in src/data/raw/)
+python3 -m src.pipeline
 ```
 
-**3. Run the notebook:**
-
-```text
-Place source data files in src/data/raw/, then open
-src/notebooks/quote_decision_model.ipynb.
-```
+Running the pipeline regenerates every table and figure under `docs/`, writes the
+clean master file and RFM table to `src/data/processed/`, and dumps a machine-readable
+summary of all statistics to `docs/tables/eda_stats.json`.
 
 ---
 
 ## Pipeline Stages
 
-| Stage                                  | Description                                                                 |
-| -------------------------------------- | --------------------------------------------------------------------------- |
-| **1. Data Loading**                    | Read raw quote and customer data into a DataFrame                           |
-| **2. Data Cleaning**                   | Standardize column names, handle missing values, and apply initial cleaning |
-| **3. Data Transformation**             | Prepare and transform data for analysis and modeling                        |
-| **4. Exploratory Data Analysis (EDA)** | Generate statistical summaries, visualizations, and identify trends         |
-| **5. Feature Engineering**             | Create and prepare features for modeling                                    |
-| **6. Export Modeling Data**            | Save processed datasets for downstream use                                  |
-| **7. Modeling**                        | Train and evaluate predictive models                                        |
-| **8. Evaluation & Validation**         | Assess model performance and compare results                                |
-| **9. Iteration & Interpretation**      | Analyze outcomes, refine features, and summarize findings                   |
+| Stage | Description |
+| ----- | ----------- |
+| **1. Ingest** | Load the raw transaction workbook into a DataFrame |
+| **2. Clean** | Drop duplicates, cancelled orders (`C` invoices), non-product service codes, and non-positive quantity/price lines |
+| **3. Transform (RFM)** | Derive line revenue and aggregate transactions into a customer-level Recency / Frequency / Monetary table with log transforms |
+| **4. EDA** | Statistical summaries, categorical profiling, distributions, and a Pearson correlation matrix |
+| **5. Export** | Save the clean master file and RFM table for downstream segmentation |
 
 ---
 
-## Key Features
+## Data & Approach
 
-* **End-to-End Modular Pipeline** – Clean separation of data cleaning, transformation, feature engineering, modeling, and evaluation for reproducibility and maintainability
-* **Robust Data Preparation** – Standardized workflows for handling and transforming raw data
-* **Comprehensive EDA** – Statistical summaries and visualizations for understanding customer and quote behavior
-* **Flexible Modeling Workflow** – Modular architecture that supports experimentation and iteration
-* **Evaluation & Validation** – Consistent approach to assessing model performance
-* **Automated Export** – Processed datasets are saved for downstream use and reproducibility
-* **Clear Visualizations** – Reusable plotting utilities for analysis and reporting
-* **Scalable & Extensible** – Designed for adaptation to new datasets, features, and business requirements
+- **Source:** `Project_2_Sales_Data.xlsx` — 379,979 line items, 8 columns, full-year 2021.
+- **Cleansing:** 14,398 records removed (3.8%); **365,581** clean transaction lines retained.
+- **Customers:** **4,214** unique customers profiled on R/F/M.
+- **Next milestones:** scale the log-transformed RFM features and apply K-Means /
+  hierarchical clustering to define segments, then map each segment to a campaign.
 
 ---
 
 ## Tools & Libraries
 
-* Python 3.13+
-* pandas, numpy – Data manipulation
-* scikit-learn – Modeling and preprocessing
-* matplotlib, seaborn – Visualization
+- Python 3.13+
+- pandas, numpy — data manipulation and aggregation
+- matplotlib, seaborn — visualization
+- openpyxl — Excel ingestion; pyarrow — parquet caching
 
 ---
 
 ## Support
 
-* Maintainer: [Phillip Smith](https://www.linkedin.com/in/pesiii/)
-* Documentation: [Milestone 1](https://docs.google.com/document/d/1M43cbNQzoAPAAhHK-ZW1Ia8ry9_iFtyq2xDQpVXLgFs/edit?usp=sharing) | [Milestone 2](https://docs.google.com/document/d/1ls9caSWwhoR-bo1eaZKouq-BdE0Qbyw4ter_Pcy6RnE/edit?usp=sharing) | [Milestone 3](https://docs.google.com/presentation/d/1SVVCicHVZv8wCpy6L83NVQk5oki0fpbo/edit?usp=sharing&ouid=105590657433449326936&rtpof=true&sd=true)
-* Repository: [GitHub](https://github.com/PESIII23/quote_decision_predictor)
+- Maintainer: [Phillip Smith](https://www.linkedin.com/in/pesiii/)

@@ -1,5 +1,5 @@
 # PROJECT ORCHESTRATION MANUAL & GUARDRAILS
-# Quote Decision Predictor
+# Sales Customer Segmentation
 
 ---
 
@@ -9,59 +9,46 @@
 
 ### Role Decision Framework
 All decisions are evaluated through the lens of a Senior MLE:
-- Prioritize model correctness, reproducibility, and generalization
-- Enforce proper train/validation/test separation and leakage prevention
-- Design modular, testable, production-aware ML pipelines
-- Favor interpretable model choices with measurable evaluation criteria
-- Flag architectural or data issues before they compound downstream
+- Prioritize correctness, reproducibility, and defensible analytical choices
+- Keep transformations leak-free and fit only where appropriate (train folds, not full data)
+- Design modular, testable, production-aware pipelines
+- Favor interpretable methods with measurable evaluation criteria
+- Flag data-quality or architectural issues before they compound downstream
 
 ---
 
 ## SECTION 1: SYSTEM SAFETY & EXECUTION RULES
 
 ### Data Safety
-- Source data (`src/data/raw/`) is **immutable** — never overwrite original files
-- All transformed outputs go to `src/data/processed/`
-- Raw parquet cache (`dataset.parquet`) is a derivative — safe to regenerate, never treat as source of truth
+- Source data (`src/data/raw/Project_2_Sales_Data.xlsx`) is **immutable** — never overwrite it
+- All derived outputs go to `src/data/processed/` and `docs/`
+- Parquet/CSV exports are derivatives — safe to regenerate, never the source of truth
 
 ### Context Management
-Never print entire DataFrames. Prefer:
-- `df.head()`, `df.sample()`, `df.info()`, `df.describe()`
+Never print entire DataFrames. Prefer `df.head()`, `df.sample()`, `df.info()`, `df.describe()`.
 
 ### Deterministic Execution
-All randomized processes must use:
+All randomized processes (clustering seeds, sampling, splits) must use:
 ```python
 random_state = 42
 ```
-> **Current violation:** `FeatureSelector` uses `random_state=0` and `Regression` uses `random_state=3`. Standardize to 42.
 
 ### Data Leakage Prevention
-- `StandardScaler` in `FeatureSelector` is applied inside the CV pipeline via `make_pipeline` — **correct**
-- Future scalers, encoders, and imputers must **only be fit on training folds**, never on full datasets
+- Scalers/encoders used for modeling must be fit on training folds only, never on full data
+- RFM aggregation uses a fixed snapshot date (last invoice + 1 day) for reproducibility
 
 ### Verification Policy
-All results must be labeled as:
-- **Assumed** — not yet validated
-- **Estimated** — from cross-validation or approximation
-- **Verified** — confirmed with held-out test data
+Label all results as **Assumed**, **Estimated**, or **Verified**.
 
 ### Three-Strike Circuit Breaker
-If the same error occurs three consecutive times:
-1. Stop execution
-2. Summarize root cause
-3. Recommend next steps
-4. Request user guidance before continuing
+If the same error occurs three consecutive times: stop, summarize root cause, recommend next steps, request guidance.
 
 ---
 
 ## SECTION 2: OPERATING PRINCIPLES
 
 ### Plan Before Action
-Before any code change:
-- Define the objective
-- List affected files
-- Identify risks
-- Define success criteria
+Before any code change: define the objective, list affected files, identify risks, define success criteria.
 
 ### Small Iterative Changes
 Prefer incremental updates. Validate after every step.
@@ -70,104 +57,78 @@ Prefer incremental updates. Validate after every step.
 Before modifying existing modules, identify all callers and evaluate downstream impact.
 
 ### Code Comment Style
-Keep comments concise — short and high-signal. Prefer a one-line rationale over multi-line explanation. Do not narrate what the code obviously does; comment only the *why* or non-obvious tradeoffs. Trim docstrings to essentials (purpose, key constraints, usage) — no verbose multi-paragraph blocks or long inline option lists.
+Keep comments concise — short and high-signal. Comment the *why*, not the obvious *what*. Trim docstrings to essentials (purpose, key constraints, usage).
 
 ---
 
 ## SECTION 3: FILE MODIFICATION SAFETY
 
-Before modifying any file:
-1. Read the entire file
-2. Identify all dependencies and callers
-3. Summarize intended changes
+Before modifying any file: read it fully, identify dependencies/callers, summarize intended changes.
 
-**Require explicit approval before:**
-- Deleting files or models
-- Dropping or overwriting datasets
-- Force-pushing to any branch
-- Modifying pipeline entry points in `pipeline.py`
+**Require explicit approval before:** deleting files, dropping/overwriting datasets, force-pushing, or modifying the `pipeline.py` entry point.
 
 ---
 
 ## SECTION 4: DEBUGGING FRAMEWORK
 
-When debugging:
-1. Reproduce the issue
-2. Isolate root cause
-3. Form a hypothesis
-4. Apply one fix at a time
-5. Validate the fix
-6. Document findings
-
-Never stack speculative fixes.
+Reproduce → isolate root cause → hypothesize → apply one fix → validate → document. Never stack speculative fixes.
 
 ---
 
 ## SECTION 5: PROJECT MEMORY
 
 ### Objectives
-- Build a classification model to predict insurance quote approval decisions (`STAT_Q`: 0=Denied, 1=Approved)
-- Target: Geico auto insurance quote data (`P1_Geico_Quote_Data.xlsx`)
+- Segment customers into actionable groups to drive targeted marketing campaigns
+- Source: `Project_2_Sales_Data.xlsx` (Online Retail-style transactional sales data)
+- Milestone 1 (this deliverable): EDA & data cleansing; establish a clean master file
 - Maintainer: Phillip Smith
 
 ### Architecture
-- **Entry point:** `src/pipeline.py` → `run_pipeline()`
-- **Data path:** `src/data/raw/P1_Geico_Quote_Data.xlsx` → parquet cache → `src/data/processed/modeling_df.parquet`
-- **Stages:** Ingest → Clean → Transform → EDA → Feature Selection → (Export) → (Modeling)
-- **Absolute paths** are hardcoded in `pipeline.py` and `eda.py` — portability risk
+- **Entry point:** `src/pipeline.py` → `run_pipeline()` (5 stages)
+- **Data flow:** raw Excel → cleaned transactions → customer RFM table → EDA artifacts
+- **Paths:** portable via `pathlib` (`PROJECT_ROOT = Path(__file__).resolve().parents[N]`)
+- **Modules:** `preprocessing/data_preparation.py` (clean), `preprocessing/data_transformation.py` (RFM), `viz/eda.py` (tables + plots)
+
+### Data Facts (verified 2026-07-08)
+- Raw: 379,979 line items, 8 columns, dates 2021-01-04 → 2021-12-09
+- No missing values in any column; `CustomerID` fully populated → **no imputation required**
+- Cleansing removed 14,398 rows (3.8%): duplicates 4,729; cancellations 8,191; non-product service codes 1,448; non-positive qty/price 30
+- Clean master: 365,581 transactions; RFM table: 4,214 customers; snapshot 2021-12-10
+- UK = 89% of line items; strong Q4 (Sep–Nov) revenue seasonality
 
 ### Key Decisions
-- Target variable is `STAT_Q` (binary: 0=Denied, 1=Approved)
-- Label encoding used for ordinal features (DRIVE_XP, EDU_PH, DRIVE_RISK, AGE_CAR, AVG_MILE_DAILY, ANNUAL_MILE, NUM_CAR)
-- One-hot encoding applied to nominal features (MARR_STAT, TYPE_CAR)
-- Binary encoding applied to: TYPE_Q, STAT_Q, SEX, HOME_STAT, OWN_CAR
-- KNN classifier used for initial feature evaluation via cross-validated AUC
+- Frame as **unsupervised segmentation** (no labeled target); organize around RFM
+- Derived `TOTAL_PRICE = QUANTITY × UNIT_PRICE`
+- RFM features: `RECENCY`, `FREQUENCY`, `MONETARY`, plus `AVG_ORDER_VALUE`
+- Added `log1p` transforms of R/F/M to tame right-skew ahead of distance-based clustering
+- Non-product `StockCode`s treated as service lines and removed: POST, DOT, C2, M, BANK CHARGES, D, CRUK, PADS
 
 ### Assumptions
-- `STAT_Q` encodes quote outcome: 0=Denied, 1=Approved (confirmed via `encode_reverse_binary`)
-- `AGE_PH` is policyholder age (numeric, binned 17–105+)
-- `ZIP` is excluded from modeling (positional column, not yet encoded)
-
-### Known Issues & Technical Debt
-1. **Stages 6–9 are commented out** in `pipeline.py` — modeling export, regression, and evaluation are incomplete
-2. **`regression_models.py` has undefined variables** — `apply_regression()` references `X` and `y` before assignment (lines 144, 155, 163, 170)
-3. **`select_features()` in `feature_selection.py`** accepts `n_neighbors` as a param but `FeatureSelector.__init__` does not — would raise `TypeError` at runtime
-4. **Hardcoded absolute paths** in `pipeline.py` (line 22) and `eda.py` (line 16) — breaks on any other machine
-5. **`random_state` inconsistency** — `FeatureSelector` uses 0, `Regression` uses 3; should be standardized to 42
-6. **No tests exist** — no `tests/` directory with any test files
-7. **`ZIP` column is loaded but never used** — no encoding or drop decision documented
-8. **`MARR_STAT` encoding** — one-hot produces unknown number of dummies; no documentation of expected categories
+- `InvoiceNo` prefix "C" = cancellation (paired with negative quantity)
+- One customer row per `CustomerID`; `Country` is customer-level
 
 ### Open Questions
-- What is the final modeling approach? (KNN used for feature eval, but regression models defined — classification vs. regression needs resolution)
-- What features should be passed to the final model? (Feature selection outputs evaluated but not consumed)
-- Should `ZIP` be encoded, binned by region, or dropped?
-- What is the business success threshold for model performance?
+- Which clustering algorithm and k for Milestone 2 (K-Means vs. hierarchical)?
+- Segment on log-scaled R/F/M only, or include `AVG_ORDER_VALUE`?
+- Treat non-UK customers as a separate segmentation or a filter?
 
-### Risks
-- **Data leakage** if scaler or encoder is ever fit outside the pipeline (currently safe)
-- **Model type mismatch** — `regression_models.py` implements regression on a binary classification target (`STAT_Q`); logistic regression or a tree-based classifier is more appropriate
-- **No reproducibility guarantee** — no `environment.yml` or pinned `requirements.txt` versions
+### Known Issues & Technical Debt
+- `requirements.txt` versions are unpinned.
+- No `tests/` directory yet.
 
 ### Future Improvements
-- Replace regression approach with classification models (LogisticRegression, RandomForestClassifier, XGBoost)
-- Replace hardcoded paths with `pathlib` relative paths from project root
-- Add `tests/` with unit tests for preprocessing and feature selection
-- Pin dependency versions in `requirements.txt`
-- Add `environment.yml` for conda environment reproducibility
-- Implement `select_features()` to consume KNN evaluation output and return a feature subset
+- Milestone 2: scale features, run K-Means (elbow + silhouette), profile segments
+- Milestone 3: campaign recommendations per segment; presentation deck
+- Add unit tests for cleansing (`clean_data`) and RFM (`build_rfm`)
+- Pin dependency versions
 
 ---
 
 ## SECTION 6: CHANGE LOG
 
-| Date       | Change                                                                 | Type   |
-|------------|------------------------------------------------------------------------|--------|
-| 2026-06-11 | Created `claude.md` — initial repository audit and project memory      | docs   |
-| 2024       | Simplified feature selector class (`514161a`)                          | refactor |
-| 2024       | Wrapped up EDA; feature selection added (`bba7a1a`)                   | feat   |
-| 2024       | Data cleaning, transformation, and EDA complete (`f5af3cb`)           | feat   |
-| 2024       | Initial data cleaning (`2bba19a`)                                      | feat   |
+| Date       | Change                                                                       | Type   |
+|------------|------------------------------------------------------------------------------|--------|
+| 2026-07-08 | Built Milestone 1 pipeline (cleansing, RFM, EDA modules), portable paths, and the EDA & Data Cleansing deliverable | feat   |
 
 ---
 
@@ -175,79 +136,39 @@ Never stack speculative fixes.
 
 **Current state: No tests exist.**
 
-Before marking any work complete:
-- Validate that existing pipeline stages run end-to-end without error
-- New preprocessing logic requires unit tests in `tests/preprocessing/`
-- Model evaluation requires validation against a held-out test set (not just CV)
-- No regressions allowed in existing pipeline stages
-
-Recommended test coverage gaps:
-- `CleanData.rename_cols()` — assert expected column names post-rename
-- `TransformData.encode_binary()` — assert 0/1 values and no nulls
-- `FeatureSelector.evaluate_neighbors()` — assert results structure and best_n selection
-- End-to-end pipeline smoke test with synthetic data
+Before marking work complete:
+- Pipeline runs end-to-end without error (`python3 -m src.pipeline`)
+- Generated tables/figures reflect the current data
+- Recommended coverage: `clean_data()` (row-drop counts), `build_rfm()` (per-customer R/F/M correctness), EDA table shapes
 
 ---
 
 ## SECTION 8: GIT WORKFLOW
 
-Before any commit, provide:
-- Summary of changes
-- Risk assessment
-- Recommended commit message
+Before any commit provide: summary of changes, risk assessment, recommended commit message.
 
-**Commit prefix conventions:**
-```
-feat:      new functionality
-fix:       bug fix
-refactor:  restructure without behavior change
-docs:      documentation only
-test:      test additions or changes
-chore:     dependency, config, or tooling changes
-```
-
-Never commit automatically without approval.
-Never force-push without explicit instruction.
+**Prefixes:** `feat` / `fix` / `refactor` / `docs` / `test` / `chore`.
+Never commit or force-push without approval.
 
 ---
 
 ## SECTION 9: PERFORMANCE REVIEW
 
-- **KNN cross-validation** runs 11 neighbor values × 5 folds × 2 passes (predict + predict_proba) = 110 CV fits — acceptable for current data size, may become slow at scale
-- **EDA plots** write to disk synchronously — acceptable for offline use
-- **Parquet caching** of raw transformed data is a good pattern — avoids re-parsing Excel on every run
-- No GPU or distributed compute considerations currently needed
+- Excel ingest of ~380K rows is the heaviest step; parquet caching of cleaned output avoids re-parsing downstream
+- EDA figures are written to disk synchronously (headless `Agg` backend) — fine for offline use
+- Clustering in later milestones on 4,214 customers is trivial in cost
 
 ---
 
 ## SECTION 10: DEFINITION OF DONE
 
 Work is **not complete** until:
-- [ ] Requirements are met and verified against expected outputs
+- [ ] Requirements met and verified against expected outputs
 - [ ] Pipeline runs end-to-end without error
-- [ ] No data leakage introduced
-- [ ] `random_state = 42` used consistently
-- [ ] Documentation updated (this file and README if applicable)
+- [ ] No leakage introduced; `random_state = 42` where randomized
+- [ ] Documentation updated (this file and README)
 - [ ] Project memory (Section 5) updated with decisions and outcomes
-- [ ] Risks documented
-- [ ] Commit message reviewed and approved
-
----
-
-## REPOSITORY AUDIT TRACKER
-
-| Item                          | Status      | Notes |
-|-------------------------------|-------------|-------|
-| Repository Inventory          | Complete    | Single project: `quote_decision_predictor` |
-| Architecture Review           | Complete    | 9-stage pipeline, stages 6–9 incomplete |
-| Dependency Review             | Complete    | `requirements.txt` unpinned; no conda env file |
-| Technical Debt Review         | Complete    | 8 issues identified; see Section 5 |
-| Knowledge Gaps Identified     | Complete    | See Open Questions in Section 5 |
-| Project Memory Initialized    | Complete    | Section 5 populated |
-| Change Plan Approved          | Pending     | Awaiting user direction |
-| Changes Implemented           | Not Started | — |
-| Validation Completed          | Not Started | — |
-| Documentation Updated         | In Progress | `claude.md` created |
+- [ ] Deliverable reviewed
 
 ---
 
@@ -256,11 +177,10 @@ Work is **not complete** until:
 | Stage | Description                  | Status      |
 |-------|------------------------------|-------------|
 | 1     | Data Ingestion               | Complete    |
-| 2     | Data Cleaning                | Complete    |
-| 3     | Data Transformation          | Complete    |
+| 2     | Data Cleansing               | Complete    |
+| 3     | Transformation (RFM)         | Complete    |
 | 4     | EDA                          | Complete    |
-| 5     | Feature Selection (eval)     | Complete    |
-| 6     | Export Modeling Data         | Not Started |
-| 7     | Modeling                     | Not Started |
-| 8     | Evaluation & Validation      | Not Started |
-| 9     | Iteration & Interpretation   | Not Started |
+| 5     | Export Clean Master + RFM    | Complete    |
+| —     | Milestone 1 Deliverable      | Complete    |
+| 6     | Segmentation (clustering)    | Not Started (Milestone 2) |
+| 7     | Campaign Recommendations     | Not Started (Milestone 3) |

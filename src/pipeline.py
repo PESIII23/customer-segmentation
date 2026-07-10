@@ -1,110 +1,131 @@
 """
-Geico Quote Decision Predictor
+Sales Customer Segmentation — EDA & Data Cleansing pipeline
 
-Orchestrates the end-to-end quote decision analysis workflow:
-    1. Data ingestion from imported data file
-    2. Exploratory Data Analysis
-    3. Data transformations (data value mods, log transforms)
-    4. Feature engineering
-    5. Export modeling-ready DataFrame
+Orchestrates Milestone 1 of the customer-segmentation project:
+    1. Ingest raw transaction data
+    2. Clean (drop cancellations, service codes, non-positive lines, duplicates)
+    3. Transform transactions into a customer-level RFM table
+    4. EDA (statistical tables, profiling tables, distributions, correlation)
+    5. Export clean master + RFM table to src/data/processed/
 
 Usage:
-    CLI:      python3 -m src.pipeline
-    ENV:      conda deactivate --> conda activate quotes
-    Python:   from src.pipeline import run_pipeline; full_df, modeling_df = run_pipeline()
+    CLI:    python3 -m src.pipeline
+    Python: from src.pipeline import run_pipeline; run_pipeline()
 """
-import pandas as pd
+import json
 from pathlib import Path
-from src.preprocessing import data_preparation, data_transformation, feature_selection
-from src.viz import eda, model_plots
-from src.models import classifiers
 
-PROJECT_ROOT = Path('/Users/phillipsmith/Desktop/Python/quote_decision_predictor')
+import pandas as pd
+
+from src.preprocessing import data_preparation, data_transformation
+from src.viz import eda
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 
 class Paths:
-    RAW_FILE = PROJECT_ROOT / 'src' / 'data' / 'raw' / 'P1_Geico_Quote_Data.xlsx'
-    RAW_PARQUET = PROJECT_ROOT / 'src' / 'data' / 'raw' / 'dataset.parquet'
-    MODELING_DATA = PROJECT_ROOT / 'src' / 'data' / 'processed' / 'modeling_df.parquet'
+    RAW_FILE = PROJECT_ROOT / "src" / "data" / "raw" / "Project_2_Sales_Data.xlsx"
+    CLEAN_PARQUET = PROJECT_ROOT / "src" / "data" / "processed" / "transactions_clean.parquet"
+    RFM_PARQUET = PROJECT_ROOT / "src" / "data" / "processed" / "rfm_customer.parquet"
+    RFM_CSV = PROJECT_ROOT / "src" / "data" / "processed" / "rfm_customer.csv"
+    STATS_JSON = PROJECT_ROOT / "docs" / "tables" / "eda_stats.json"
 
-    pd.set_option('display.max_columns', None)
 
 def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Execute the full pipeline. Returns (full_df, modeling_df).
-        """
-        log = print if verbose else lambda *args, **kwargs: None
-        
-        """
-        HEADER
-        """
-        print()
-        log("=" * 60)
-        log("GEICO QUOTE DECISION PREDICTION PIPELINE")
-        log("=" * 60)
-        
-        """
-        STAGE 1: INGEST DATA
-        """
-        log("\n[1/9] LOADING DATA FROM SOURCE FILE...\n")
-        df = pd.read_excel(Paths.RAW_FILE, header=0)
-        print(df.columns)
-        log(f"      Loaded {len(df):,} records.")
-        log(f"      DataFrame shape: {df.shape}\n")
-        
-        """
-        STAGE 2: CLEAN DATA
-        """
-        log("\n[2/9] CLEANING DATA...\n")
-        df_cleaned = data_preparation.clean_data(df)
-        # missing = data_preparation.CleanData(df_cleaned).is_missing_vals()
-        # if missing:
-        #     log("      WARNING: Missing values detected in cleaned data.\n")
-        #     # apply imputation or other missing data approaches
-        log(f"      Data is cleaned.\n")
+    """Execute the full Milestone 1 pipeline. Returns (clean_txns, rfm)."""
+    log = print if verbose else (lambda *a, **k: None)
+    stats = {}
 
-        """
-        STAGE 3: TRANSFORM DATA
-        """
-        log("\n[3/9] TRANSFORMING DATA...\n")
-        df_transformed = data_transformation.transform_data(df_cleaned)
-        df_transformed.to_parquet(Paths.RAW_PARQUET, engine='fastparquet')
-        df_transformed = pd.read_parquet(Paths.RAW_PARQUET, engine='fastparquet')
-        log("      Data is transformed.\n")
+    log("=" * 60)
+    log("SALES CUSTOMER SEGMENTATION — EDA & CLEANSING PIPELINE")
+    log("=" * 60)
 
-        """
-        STAGE 4: EXPLORATORY DATA ANALYSIS
-        """
-        log("\n[4/9] PERFORMING EDA...\n")
-        df_eda = eda.explore_data(df_transformed)
-        log("      Generated EDA plots. Please see docs/eda_*.\n")
-        print(df_eda.columns)
+    # STAGE 1: INGEST -------------------------------------------------------
+    log("\n[1/5] LOADING DATA FROM SOURCE FILE...")
+    raw = pd.read_excel(Paths.RAW_FILE, header=0)
+    log(f"      Loaded {len(raw):,} rows, {raw.shape[1]} columns.")
+    stats["raw_rows"] = int(len(raw))
+    stats["raw_cols"] = list(raw.columns)
+    # original numeric summary (before cleaning) for the deliverable
+    stats["raw_numeric_describe"] = (
+        raw[["Quantity", "UnitPrice"]].describe().round(2).to_dict()
+    )
 
-        """
-        STAGE 5: FEATURE SELECTION
-        """
-        log("\n[5/9] SELECTING FEATURES...\n")
-        selector = feature_selection.FeatureSelection(df_eda)
-        df_modeling = selector.run(verbose=verbose)
-        log(f"\n      Modeling DataFrame shape: {df_modeling.shape}\n")
+    # STAGE 2: CLEAN --------------------------------------------------------
+    log("\n[2/5] CLEANING DATA...")
+    clean_df, report = data_preparation.clean_data(raw)
+    stats["cleaning_report"] = report
+    for k, v in report.items():
+        log(f"      {k}: {v:,}")
 
-        """
-        STAGE 6: MODELING
-        """
-        log("\n[6/9] TRAINING AND EVALUATING MODELS...\n")
-        results = classifiers.run_models(df_modeling, verbose=verbose)
-        log("\n      Model comparison (sorted by ROC-AUC):")
-        log(results.to_string(index=False))
-        log("\n      ROC curves saved to docs/model_plots/roc_curves.png\n")
+    # STAGE 3: TRANSFORM (RFM) ---------------------------------------------
+    log("\n[3/5] BUILDING CUSTOMER RFM TABLE...")
+    rfm, snapshot = data_transformation.transform_data(clean_df)
+    stats["snapshot_date"] = str(snapshot.date())
+    stats["n_customers"] = int(len(rfm))
+    log(f"      Snapshot date: {snapshot.date()} | Customers: {len(rfm):,}")
 
-        """
-        FOOTER
-        """
-        log("\n" + "=" * 60)
-        log("PIPELINE COMPLETE")
-        log("=" * 60 + '\n')
-        # log(f"Modeling DataFrame: {df_modeled.shape}\n")
-        
-        return
+    # STAGE 4: EDA ----------------------------------------------------------
+    log("\n[4/5] PERFORMING EDA...")
+    e = eda.EDA()
+
+    txn_num = e.numeric_summary(clean_df, ["QUANTITY", "UNIT_PRICE", "TOTAL_PRICE"],
+                                "numeric_summary_transactions")
+    rfm_num = e.numeric_summary(rfm, ["RECENCY", "FREQUENCY", "MONETARY", "AVG_ORDER_VALUE"],
+                                "numeric_summary_rfm")
+    cat_prof = e.categorical_profile(
+        clean_df, ["INVOICE_ID", "STOCK_CODE", "DESCRIPTION", "CUSTOMER_ID", "COUNTRY"],
+        "categorical_profile")
+    stats["numeric_summary_transactions"] = txn_num.to_dict("index")
+    stats["numeric_summary_rfm"] = rfm_num.to_dict("index")
+    stats["categorical_profile"] = cat_prof.to_dict("records")
+
+    # distributions
+    e.plot_histogram(clean_df, ["QUANTITY", "UNIT_PRICE", "TOTAL_PRICE"], "eda_numerical")
+    e.plot_histogram(rfm, ["RECENCY", "FREQUENCY", "MONETARY"], "eda_numerical")
+    e.plot_histogram(rfm, ["MONETARY_log", "FREQUENCY_log"], "eda_numerical")
+    e.plot_box(rfm, ["RECENCY", "FREQUENCY", "MONETARY"], "eda_numerical")
+
+    # categorical bars
+    e.plot_top_bar(clean_df["COUNTRY"].value_counts().head(10),
+                   "Top 10 Countries by Line Items", "top_countries",
+                   "eda_categorical", xlabel="line items")
+    top_products = clean_df["DESCRIPTION"].value_counts().head(15)
+    e.plot_top_bar(top_products, "Top 15 Products by Line Items",
+                   "top_products", "eda_categorical", xlabel="line items")
+    monthly = e.plot_timeline(clean_df, "eda_categorical")
+    stats["monthly_revenue"] = {d.strftime("%Y-%m"): round(v, 2)
+                                for d, v in monthly["revenue"].items()}
+    stats["top_countries"] = clean_df["COUNTRY"].value_counts().head(10).to_dict()
+    stats["uk_share_pct"] = round(
+        100 * (clean_df["COUNTRY"] == "United Kingdom").mean(), 1)
+
+    # correlation
+    corr = e.plot_correlation_matrix(
+        rfm, ["RECENCY", "FREQUENCY", "MONETARY", "AVG_ORDER_VALUE"], "eda_correlation")
+    stats["rfm_correlation"] = corr.to_dict("index")
+    log("      Tables -> docs/tables/ | Figures -> docs/eda_*/")
+
+    # STAGE 5: EXPORT -------------------------------------------------------
+    log("\n[5/5] EXPORTING CLEAN MASTER + RFM TABLE...")
+    Paths.CLEAN_PARQUET.parent.mkdir(parents=True, exist_ok=True)
+    # coerce object cols to string so parquet doesn't mis-infer numeric-looking codes
+    clean_out = clean_df.astype({c: "string" for c in clean_df.select_dtypes("object").columns})
+    clean_out.to_parquet(Paths.CLEAN_PARQUET, index=False)
+    rfm.to_parquet(Paths.RFM_PARQUET, index=False)
+    rfm.to_csv(Paths.RFM_CSV, index=False)
+
+    Paths.STATS_JSON.parent.mkdir(parents=True, exist_ok=True)
+    with open(Paths.STATS_JSON, "w") as f:
+        json.dump(stats, f, indent=2, default=str)
+
+    log(f"      Clean transactions: {clean_df.shape} -> {Paths.CLEAN_PARQUET.name}")
+    log(f"      RFM customers:      {rfm.shape} -> {Paths.RFM_PARQUET.name}")
+    log("\n" + "=" * 60)
+    log("PIPELINE COMPLETE")
+    log("=" * 60 + "\n")
+
+    return clean_df, rfm
 
 
 if __name__ == "__main__":
