@@ -80,14 +80,16 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 ### Objectives
 - Segment customers into actionable groups to drive targeted marketing campaigns
 - Source: `Project_2_Sales_Data.xlsx` (Online Retail-style transactional sales data)
-- Milestone 1 (this deliverable): EDA & data cleansing; establish a clean master file
+- Milestone 1: EDA & data cleansing; establish a clean master file — **complete**
+- Milestone 2 (this deliverable): clustering models → Gold/Silver/Bronze segments — **complete**
 - Maintainer: Phillip Smith
 
 ### Architecture
-- **Entry point:** `src/pipeline.py` → `run_pipeline()` (5 stages)
-- **Data flow:** raw Excel → cleaned transactions → customer RFM table → EDA artifacts
+- **Entry point:** `src/pipeline.py` → `run_pipeline()` (6 stages), returns `(clean_txns, rfm, segments)`
+- **Data flow:** raw Excel → cleaned transactions → customer RFM table → EDA artifacts → segmented customers
 - **Paths:** portable via `pathlib` (`PROJECT_ROOT = Path(__file__).resolve().parents[N]`)
-- **Modules:** `preprocessing/data_preparation.py` (clean), `preprocessing/data_transformation.py` (RFM), `viz/eda.py` (tables + plots)
+- **Modules:** `preprocessing/data_preparation.py` (clean), `preprocessing/data_transformation.py` (RFM), `viz/eda.py` (tables + plots), `modeling/clustering.py` (segmentation)
+- **Runtime:** a full run is ~4 min; Stage 6's Mean Shift and DBSCAN sweeps dominate
 
 ### Data Facts (verified 2026-07-08)
 - Raw: 379,979 line items, 8 columns, dates 2021-01-04 → 2021-12-09
@@ -96,31 +98,62 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 - Clean master: 365,581 transactions; RFM table: 4,214 customers; snapshot 2021-12-10
 - UK = 89% of line items; strong Q4 (Sep–Nov) revenue seasonality
 
+### Model Facts (verified 2026-07-26)
+- Model input: R/F/M percentile ratings scaled 0–5 (ranking removes the need for a separate scaler)
+- 55 models fit across 4 techniques; best silhouette per technique: K-Means 0.470 (k=2),
+  Agglomerative 0.427 (k=2), Mean Shift 0.371 (bw=1.6), DBSCAN 0.209
+- **Selected: K-Means k=4** — wins all three metrics at ≥3 clusters
+  (silhouette 0.3807, Calinski-Harabasz 4296.5, Davies-Bouldin 0.970)
+- Holdout check (fit 80% / score unseen 20%): silhouette 0.3823 ≈ full-population 0.3807 → stable
+- Segments: Gold 1,270 (30.1% of base, 76.1% of revenue) | Silver 1,783 (42.3%, 19.5%) |
+  Bronze 1,161 (27.6%, 4.5%); total revenue GBP 8,172,028
+- Each band is 89–91% UK → the model split on behavior, not geography
+
 ### Key Decisions
 - Frame as **unsupervised segmentation** (no labeled target); organize around RFM
 - Derived `TOTAL_PRICE = QUANTITY × UNIT_PRICE`
 - RFM features: `RECENCY`, `FREQUENCY`, `MONETARY`, plus `AVG_ORDER_VALUE`
 - Added `log1p` transforms of R/F/M to tame right-skew ahead of distance-based clustering
 - Non-product `StockCode`s treated as service lines and removed: POST, DOT, C2, M, BANK CHARGES, D, CRUK, PADS
+- Milestone 2 clusters on **percentile ratings**, not the log columns — ranking puts R/F/M on one
+  0–5 scale, so no separate scaler is needed and outliers compress automatically. The `_log`
+  columns remain in the RFM table for reporting.
+- Model selection restricted to **≥3 clusters**: silhouette peaks at k=2, but two clusters cannot
+  express three business tiers and would merge lapsed with occasional buyers
+- With k=4 → 3 bands, the two middle clusters merge into Silver (they differ mainly on recency,
+  99d vs 25d, at similar spend) — same approach as the instructor's reference notebook
+- Bands assigned by ranking clusters on mean `RFM_SCORE`, never on raw cluster number
+- `IS_UK` and `Q4_SPEND_SHARE` are built but deliberately **excluded from the feature matrix** —
+  they profile segments rather than define them
 
 ### Assumptions
 - `InvoiceNo` prefix "C" = cancellation (paired with negative quantity)
 - One customer row per `CustomerID`; `Country` is customer-level
 
 ### Open Questions
-- Which clustering algorithm and k for Milestone 2 (K-Means vs. hierarchical)?
-- Segment on log-scaled R/F/M only, or include `AVG_ORDER_VALUE`?
-- Treat non-UK customers as a separate segmentation or a filter?
+- ~~Which clustering algorithm and k?~~ **Resolved:** K-Means, k=4 (wins all three metrics)
+- ~~Segment on log-scaled R/F/M or include `AVG_ORDER_VALUE`?~~ **Resolved:** percentile ratings
+  of R/F/M only; AOV is derived from M÷F and would double-count monetary value
+- ~~Treat non-UK customers separately or filter?~~ **Resolved:** kept all 4,214 customers;
+  bands came out 89–91% UK anyway, so a filter would have changed little and lost the
+  international opportunity
+- Milestone 3: which campaign maps to each band, and how is lift measured?
 
 ### Known Issues & Technical Debt
 - `requirements.txt` versions are unpinned.
 - No `tests/` directory yet.
+- `pipeline.py:117` emits a `Pandas4Warning` — `select_dtypes("object")` will stop matching
+  string dtypes in pandas 3. Pre-existing (Milestone 1); harmless today, one-word fix.
+- Agglomerative clustering is scored on the full rating matrix only; it has no `predict()`,
+  so it cannot take part in the holdout stability check.
+- `is_missing_vals()` and `detect_iqr_outlier()` remain unreachable from the pipeline.
 
 ### Future Improvements
-- Milestone 2: scale features, run K-Means (elbow + silhouette), profile segments
 - Milestone 3: campaign recommendations per segment; presentation deck
-- Add unit tests for cleansing (`clean_data`) and RFM (`build_rfm`)
+- Add unit tests for cleansing (`clean_data`), RFM (`build_rfm`), and band assignment
+  (`band_customers` — verify Gold always has the highest mean `RFM_SCORE`)
 - Pin dependency versions
+- Cache Stage 6 results so re-running the pipeline for an EDA tweak skips the 3-minute sweep
 
 ---
 
@@ -129,6 +162,7 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 | Date       | Change                                                                       | Type   |
 |------------|------------------------------------------------------------------------------|--------|
 | 2026-07-08 | Built Milestone 1 pipeline (cleansing, RFM, EDA modules), portable paths, and the EDA & Data Cleansing deliverable | feat   |
+| 2026-07-26 | Added `modeling/clustering.py` (4 clustering iterations, metric-based selection, Gold/Silver/Bronze banding), wired in as pipeline Stage 6, and generated the Data Wrangling & Model Output deliverable | feat   |
 
 ---
 
@@ -139,7 +173,8 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 Before marking work complete:
 - Pipeline runs end-to-end without error (`python3 -m src.pipeline`)
 - Generated tables/figures reflect the current data
-- Recommended coverage: `clean_data()` (row-drop counts), `build_rfm()` (per-customer R/F/M correctness), EDA table shapes
+- Recommended coverage: `clean_data()` (row-drop counts), `build_rfm()` (per-customer R/F/M
+  correctness), EDA table shapes, `band_customers()` (Gold must hold the highest mean `RFM_SCORE`)
 
 ---
 
@@ -154,9 +189,11 @@ Never commit or force-push without approval.
 
 ## SECTION 9: PERFORMANCE REVIEW
 
-- Excel ingest of ~380K rows is the heaviest step; parquet caching of cleaned output avoids re-parsing downstream
+- Excel ingest of ~380K rows is the heaviest Milestone 1 step; parquet caching of cleaned output avoids re-parsing downstream
 - EDA figures are written to disk synchronously (headless `Agg` backend) — fine for offline use
-- Clustering in later milestones on 4,214 customers is trivial in cost
+- Stage 6 is now the slowest stage (~3 of ~4 min). K-Means and Agglomerative are trivial on
+  4,214 customers; the cost is Mean Shift's 12 bandwidth fits and DBSCAN's 20-point grid, both
+  of which scale super-linearly. Kept as-is because the assignment requires comparing techniques.
 
 ---
 
@@ -182,5 +219,6 @@ Work is **not complete** until:
 | 4     | EDA                          | Complete    |
 | 5     | Export Clean Master + RFM    | Complete    |
 | —     | Milestone 1 Deliverable      | Complete    |
-| 6     | Segmentation (clustering)    | Not Started (Milestone 2) |
+| 6     | Segmentation (clustering)    | Complete    |
+| —     | Milestone 2 Deliverable      | Complete    |
 | 7     | Campaign Recommendations     | Not Started (Milestone 3) |

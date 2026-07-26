@@ -39,6 +39,9 @@ env/
 # AI agent files
 ai_agent_files/
 
+# Instructor reference notebooks (~12 MB of embedded outputs; kept local)
+docs/reference_code/
+
 # Data files (keep structure, ignore large files)
 src/data/raw/*.xlsx
 src/data/raw/*.csv
