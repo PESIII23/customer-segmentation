@@ -1,9 +1,10 @@
 """
 Cleaning and wrangling for the Online Retail sales data.
 
-Removes transactional artifacts (cancellations, non-product service codes,
-zero-price lines, exact duplicates) so a clean master file can support
-customer segmentation. Records the row count dropped at each step for reporting.
+Removes non-product service codes, zero-price lines and exact duplicates, then
+splits the remainder into purchase lines and cancellation lines. Cancellations
+are retained rather than discarded so customer value can be reported net of
+refunds (see data_transformation.build_rfm). Records row counts at each step.
 """
 import pandas as pd
 import logging
@@ -45,14 +46,6 @@ class CleanData:
         self.report["dropped_duplicates"] = before - len(self.df)
         return self.df
 
-    def remove_cancellations(self):
-        """Cancelled orders carry a 'C' invoice prefix and negative quantity."""
-        before = len(self.df)
-        is_cancel = self.df['INVOICE_ID'].astype(str).str.startswith('C')
-        self.df = self.df[~is_cancel].reset_index(drop=True)
-        self.report["dropped_cancellations"] = before - len(self.df)
-        return self.df
-
     def remove_nonproduct_codes(self):
         """Drop postage, manual, discount, and bank-charge service lines."""
         before = len(self.df)
@@ -60,15 +53,31 @@ class CleanData:
         self.report["dropped_nonproduct"] = before - len(self.df)
         return self.df
 
-    def remove_nonpositive(self):
-        """Remaining rows must have positive quantity and price to be a real sale."""
+    def remove_nonpositive_price(self):
+        """Price must be positive on any real line; quantity sign carries meaning."""
         before = len(self.df)
-        self.df = self.df[(self.df['QUANTITY'] > 0) & (self.df['UNIT_PRICE'] > 0)].reset_index(drop=True)
-        self.report["dropped_nonpositive"] = before - len(self.df)
+        self.df = self.df[self.df['UNIT_PRICE'] > 0].reset_index(drop=True)
+        self.report["dropped_nonpositive_price"] = before - len(self.df)
         return self.df
 
     def add_total_price(self):
         self.df['TOTAL_PRICE'] = self.df['QUANTITY'] * self.df['UNIT_PRICE']
+        return self.df
+
+    def split_cancellations(self):
+        """Separate cancellation lines from purchase lines.
+
+        A 'C' invoice prefix and a negative quantity are equivalent in this
+        source (verified: 8,215 rows each, no exceptions), so either test
+        identifies the same rows. Cancellations are kept for netting, not
+        discarded, because deleting them while keeping the original order
+        overstates customer value.
+        """
+        is_cancel = self.df['INVOICE_ID'].astype(str).str.startswith('C')
+        self.cancellations = self.df[is_cancel].reset_index(drop=True)
+        self.df = self.df[~is_cancel].reset_index(drop=True)
+        self.report["cancellations_retained"] = len(self.cancellations)
+        self.report["purchases_retained"] = len(self.df)
         return self.df
 
     def get_report(self) -> dict:
@@ -78,14 +87,22 @@ class CleanData:
     def get_dataframe(self) -> pd.DataFrame:
         return self.df
 
+    def get_cancellations(self) -> pd.DataFrame:
+        return self.cancellations
 
-def clean_data(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """Apply all cleaning steps; returns (clean_df, cleaning_report)."""
+
+def clean_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+    """Apply all cleaning steps.
+
+    Returns (purchases, cancellations, cleaning_report). Purchases are the
+    transaction master; cancellations are retained separately so monetary value
+    can be reported net of refunds.
+    """
     clean = CleanData(df)
     clean.rename_cols()
     clean.drop_duplicates()
-    clean.remove_cancellations()
     clean.remove_nonproduct_codes()
-    clean.remove_nonpositive()
+    clean.remove_nonpositive_price()
     clean.add_total_price()
-    return clean.get_dataframe(), clean.get_report()
+    clean.split_cancellations()
+    return clean.get_dataframe(), clean.get_cancellations(), clean.get_report()

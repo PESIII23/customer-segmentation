@@ -35,13 +35,15 @@
   "cleaning_report": {
     "rows_start": 379979,
     "dropped_duplicates": 4729,
-    "dropped_cancellations": 8191,
-    "dropped_nonproduct": 1448,
-    "dropped_nonpositive": 30,
+    "dropped_nonproduct": 1799,
+    "dropped_nonpositive_price": 30,
+    "cancellations_retained": 7840,
+    "purchases_retained": 365581,
     "rows_end": 365581
   },
   "snapshot_date": "2021-12-10",
-  "n_customers": 4214,
+  "n_customers": 4201,
+  "dropped_net_nonpositive_customers": 13,
   "numeric_summary_transactions": {
     "QUANTITY": {
       "count": 365581.0,
@@ -79,21 +81,21 @@
   },
   "numeric_summary_rfm": {
     "RECENCY": {
-      "count": 4214.0,
-      "mean": 84.93,
-      "median": 48.0,
-      "std": 90.2,
+      "count": 4201.0,
+      "mean": 84.74,
+      "median": 47.0,
+      "std": 90.08,
       "min": 1.0,
       "25%": 17.0,
-      "50%": 48.0,
+      "50%": 47.0,
       "75%": 128.0,
       "max": 340.0
     },
     "FREQUENCY": {
-      "count": 4214.0,
-      "mean": 4.04,
+      "count": 4201.0,
+      "mean": 4.05,
       "median": 2.0,
-      "std": 7.04,
+      "std": 7.05,
       "min": 1.0,
       "25%": 1.0,
       "50%": 2.0,
@@ -101,26 +103,26 @@
       "max": 185.0
     },
     "MONETARY": {
-      "count": 4214.0,
-      "mean": 1939.26,
-      "median": 654.21,
-      "std": 8587.73,
-      "min": 3.75,
-      "25%": 301.38,
-      "50%": 654.21,
-      "75%": 1582.75,
-      "max": 270561.14
+      "count": 4201.0,
+      "mean": 1838.03,
+      "median": 642.8,
+      "std": 7961.01,
+      "min": 0.0,
+      "25%": 296.71,
+      "50%": 642.8,
+      "75%": 1554.37,
+      "max": 270201.14
     },
     "AVG_ORDER_VALUE": {
-      "count": 4214.0,
-      "mean": 420.39,
-      "median": 294.18,
-      "std": 1826.35,
-      "min": 3.75,
-      "25%": 177.8,
-      "50%": 294.18,
-      "75%": 430.0,
-      "max": 84236.25
+      "count": 4201.0,
+      "mean": 373.41,
+      "median": 287.34,
+      "std": 471.62,
+      "min": 0.0,
+      "25%": 173.89,
+      "50%": 287.34,
+      "75%": 425.96,
+      "max": 13206.5
     }
   },
   "categorical_profile": [
@@ -196,43 +198,364 @@
     "RECENCY": {
       "RECENCY": 1.0,
       "FREQUENCY": -0.27,
-      "MONETARY": -0.12,
-      "AVG_ORDER_VALUE": 0.01
+      "MONETARY": -0.13,
+      "AVG_ORDER_VALUE": -0.04
     },
     "FREQUENCY": {
       "RECENCY": -0.27,
       "FREQUENCY": 1.0,
-      "MONETARY": 0.55,
-      "AVG_ORDER_VALUE": 0.02
+      "MONETARY": 0.58,
+      "AVG_ORDER_VALUE": 0.1
     },
     "MONETARY": {
-      "RECENCY": -0.12,
-      "FREQUENCY": 0.55,
+      "RECENCY": -0.13,
+      "FREQUENCY": 0.58,
       "MONETARY": 1.0,
-      "AVG_ORDER_VALUE": 0.41
+      "AVG_ORDER_VALUE": 0.43
     },
     "AVG_ORDER_VALUE": {
-      "RECENCY": 0.01,
-      "FREQUENCY": 0.02,
-      "MONETARY": 0.41,
+      "RECENCY": -0.04,
+      "FREQUENCY": 0.1,
+      "MONETARY": 0.43,
       "AVG_ORDER_VALUE": 1.0
     }
   },
+  "temporal_day_of_week": {
+    "Mon": {
+      "TRANSACTIONS": 2979,
+      "LINE_ITEMS": 62416,
+      "REVENUE": 1574173.13,
+      "REVENUE_PER_TXN": 528.42,
+      "REVENUE_PCT": 19.3
+    },
+    "Tue": {
+      "TRANSACTIONS": 3121,
+      "LINE_ITEMS": 62484,
+      "REVENUE": 1439615.54,
+      "REVENUE_PER_TXN": 461.27,
+      "REVENUE_PCT": 17.6
+    },
+    "Wed": {
+      "TRANSACTIONS": 3640,
+      "LINE_ITEMS": 73243,
+      "REVENUE": 1800452.39,
+      "REVENUE_PER_TXN": 494.63,
+      "REVENUE_PCT": 22.0
+    },
+    "Thu": {
+      "TRANSACTIONS": 2626,
+      "LINE_ITEMS": 50802,
+      "REVENUE": 1384339.41,
+      "REVENUE_PER_TXN": 527.17,
+      "REVENUE_PCT": 16.9
+    },
+    "Fri": {
+      "TRANSACTIONS": 0,
+      "LINE_ITEMS": 0,
+      "REVENUE": 0.0,
+      "REVENUE_PER_TXN": 0.0,
+      "REVENUE_PCT": 0.0
+    },
+    "Sat": {
+      "TRANSACTIONS": 2020,
+      "LINE_ITEMS": 56642,
+      "REVENUE": 724560.18,
+      "REVENUE_PER_TXN": 358.69,
+      "REVENUE_PCT": 8.9
+    },
+    "Sun": {
+      "TRANSACTIONS": 2622,
+      "LINE_ITEMS": 59994,
+      "REVENUE": 1248887.43,
+      "REVENUE_PER_TXN": 476.31,
+      "REVENUE_PCT": 15.3
+    }
+  },
+  "temporal_hour_of_day": {
+    "6": {
+      "TRANSACTIONS": 1,
+      "REVENUE": 4.25,
+      "REVENUE_PER_TXN": 4.25,
+      "REVENUE_PCT": 0.0
+    },
+    "7": {
+      "TRANSACTIONS": 27,
+      "REVENUE": 30002.21,
+      "REVENUE_PER_TXN": 1111.19,
+      "REVENUE_PCT": 0.4
+    },
+    "8": {
+      "TRANSACTIONS": 528,
+      "REVENUE": 271348.71,
+      "REVENUE_PER_TXN": 513.92,
+      "REVENUE_PCT": 3.3
+    },
+    "9": {
+      "TRANSACTIONS": 1284,
+      "REVENUE": 785767.47,
+      "REVENUE_PER_TXN": 611.97,
+      "REVENUE_PCT": 9.6
+    },
+    "10": {
+      "TRANSACTIONS": 2036,
+      "REVENUE": 1169395.49,
+      "REVENUE_PER_TXN": 574.36,
+      "REVENUE_PCT": 14.3
+    },
+    "11": {
+      "TRANSACTIONS": 2090,
+      "REVENUE": 1019146.01,
+      "REVENUE_PER_TXN": 487.63,
+      "REVENUE_PCT": 12.5
+    },
+    "12": {
+      "TRANSACTIONS": 2897,
+      "REVENUE": 1278044.51,
+      "REVENUE_PER_TXN": 441.16,
+      "REVENUE_PCT": 15.6
+    },
+    "13": {
+      "TRANSACTIONS": 2417,
+      "REVENUE": 1059264.88,
+      "REVENUE_PER_TXN": 438.26,
+      "REVENUE_PCT": 13.0
+    },
+    "14": {
+      "TRANSACTIONS": 2099,
+      "REVENUE": 916114.43,
+      "REVENUE_PER_TXN": 436.45,
+      "REVENUE_PCT": 11.2
+    },
+    "15": {
+      "TRANSACTIONS": 1848,
+      "REVENUE": 870075.42,
+      "REVENUE_PER_TXN": 470.82,
+      "REVENUE_PCT": 10.6
+    },
+    "16": {
+      "TRANSACTIONS": 993,
+      "REVENUE": 401330.14,
+      "REVENUE_PER_TXN": 404.16,
+      "REVENUE_PCT": 4.9
+    },
+    "17": {
+      "TRANSACTIONS": 490,
+      "REVENUE": 209476.72,
+      "REVENUE_PER_TXN": 427.5,
+      "REVENUE_PCT": 2.6
+    },
+    "18": {
+      "TRANSACTIONS": 151,
+      "REVENUE": 99437.07,
+      "REVENUE_PER_TXN": 658.52,
+      "REVENUE_PCT": 1.2
+    },
+    "19": {
+      "TRANSACTIONS": 131,
+      "REVENUE": 44090.38,
+      "REVENUE_PER_TXN": 336.57,
+      "REVENUE_PCT": 0.5
+    },
+    "20": {
+      "TRANSACTIONS": 17,
+      "REVENUE": 18530.39,
+      "REVENUE_PER_TXN": 1090.02,
+      "REVENUE_PCT": 0.2
+    }
+  },
+  "temporal_days_absent": [
+    "Fri"
+  ],
+  "cancellation_summary": {
+    "cancellation_lines": 7840,
+    "purchase_lines": 365581,
+    "refund_value": 454445.07,
+    "gross_revenue": 8172028.08,
+    "net_revenue": 7717583.01,
+    "overstatement_pct": 5.89,
+    "customers_with_cancellation": 1420,
+    "customers_total": 4214,
+    "median_refund_ratio_pct": 2.0,
+    "customers_refund_over_50pct": 26,
+    "customers_net_nonpositive": 13
+  },
+  "top_stock_codes": [
+    {
+      "STOCK_CODE": 23843,
+      "DESCRIPTION": "PAPER CRAFT , LITTLE BIRDIE",
+      "LINE_ITEMS": 1,
+      "UNITS": 80995,
+      "REVENUE": 168469.6,
+      "CUSTOMERS": 1,
+      "AVG_UNIT_PRICE": 2.08,
+      "REVENUE_PCT": 2.06
+    },
+    {
+      "STOCK_CODE": 22423,
+      "DESCRIPTION": "REGENCY CAKESTAND 3 TIER",
+      "LINE_ITEMS": 1574,
+      "UNITS": 10820,
+      "REVENUE": 124683.25,
+      "CUSTOMERS": 844,
+      "AVG_UNIT_PRICE": 12.5,
+      "REVENUE_PCT": 1.53
+    },
+    {
+      "STOCK_CODE": "85123A",
+      "DESCRIPTION": "WHITE HANGING HEART T-LIGHT HOLDER",
+      "LINE_ITEMS": 1816,
+      "UNITS": 33152,
+      "REVENUE": 90945.4,
+      "CUSTOMERS": 818,
+      "AVG_UNIT_PRICE": 2.9,
+      "REVENUE_PCT": 1.11
+    },
+    {
+      "STOCK_CODE": "85099B",
+      "DESCRIPTION": "JUMBO BAG RED RETROSPOT",
+      "LINE_ITEMS": 1531,
+      "UNITS": 44022,
+      "REVENUE": 81421.34,
+      "CUSTOMERS": 611,
+      "AVG_UNIT_PRICE": 2.02,
+      "REVENUE_PCT": 1.0
+    },
+    {
+      "STOCK_CODE": 23166,
+      "DESCRIPTION": "MEDIUM CERAMIC TOP STORAGE JAR",
+      "LINE_ITEMS": 198,
+      "UNITS": 77916,
+      "REVENUE": 81416.73,
+      "CUSTOMERS": 138,
+      "AVG_UNIT_PRICE": 1.22,
+      "REVENUE_PCT": 1.0
+    },
+    {
+      "STOCK_CODE": 47566,
+      "DESCRIPTION": "PARTY BUNTING",
+      "LINE_ITEMS": 1366,
+      "UNITS": 15089,
+      "REVENUE": 67991.73,
+      "CUSTOMERS": 700,
+      "AVG_UNIT_PRICE": 4.88,
+      "REVENUE_PCT": 0.83
+    },
+    {
+      "STOCK_CODE": 84879,
+      "DESCRIPTION": "ASSORTED COLOUR BIRD ORNAMENT",
+      "LINE_ITEMS": 1302,
+      "UNITS": 33004,
+      "REVENUE": 52760.44,
+      "CUSTOMERS": 652,
+      "AVG_UNIT_PRICE": 1.68,
+      "REVENUE_PCT": 0.65
+    },
+    {
+      "STOCK_CODE": 23084,
+      "DESCRIPTION": "RABBIT NIGHT LIGHT",
+      "LINE_ITEMS": 823,
+      "UNITS": 27153,
+      "REVENUE": 51251.24,
+      "CUSTOMERS": 450,
+      "AVG_UNIT_PRICE": 2.01,
+      "REVENUE_PCT": 0.63
+    },
+    {
+      "STOCK_CODE": 22502,
+      "DESCRIPTION": "PICNIC BASKET WICKER SMALL",
+      "LINE_ITEMS": 210,
+      "UNITS": 1364,
+      "REVENUE": 46676.4,
+      "CUSTOMERS": 160,
+      "AVG_UNIT_PRICE": 11.93,
+      "REVENUE_PCT": 0.57
+    },
+    {
+      "STOCK_CODE": 79321,
+      "DESCRIPTION": "CHILLI LIGHTS",
+      "LINE_ITEMS": 457,
+      "UNITS": 8176,
+      "REVENUE": 40065.77,
+      "CUSTOMERS": 198,
+      "AVG_UNIT_PRICE": 5.54,
+      "REVENUE_PCT": 0.49
+    }
+  ],
+  "description_consistency": {
+    "stock_codes": 3590,
+    "codes_with_multiple_descriptions": 191,
+    "codes_with_multiple_pct": 5.3,
+    "max_descriptions_on_one_code": 4,
+    "descriptions_on_multiple_codes": 19,
+    "top_n_revenue_pct": 9.9
+  },
+  "description_variants": [
+    {
+      "STOCK_CODE": 23236,
+      "VARIANTS": 4,
+      "DESCRIPTIONS": "STORAGE TIN VINTAGE DOILY  (x160) | DOILEY STORAGE TIN (x113) | DOILEY BISCUIT TIN (x13) | STORAGE TIN VINTAGE DOILEY  (x1)"
+    },
+    {
+      "STOCK_CODE": 23196,
+      "VARIANTS": 4,
+      "DESCRIPTIONS": "VINTAGE LEAF MAGNETIC NOTEPAD (x215) | RETRO LEAVES MAGNETIC NOTEPAD (x19) | RETO LEAVES MAGNETIC SHOPPING LIST (x3) | LEAVES MAGNETIC  SHOPPING LIST (x2)"
+    },
+    {
+      "STOCK_CODE": 23244,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "ROUND STORAGE TIN VINTAGE LEAF (x96) | STORAGE TIN VINTAGE LEAF (x7) | CANNISTER VINTAGE LEAF DESIGN (x2)"
+    },
+    {
+      "STOCK_CODE": 23209,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "LUNCH BAG VINTAGE DOILY  (x549) | LUNCH BAG DOILEY PATTERN  (x467) | LUNCH BAG VINTAGE DOILEY  (x4)"
+    },
+    {
+      "STOCK_CODE": 23535,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "WALL ART BICYCLE SAFETY (x121) | BICYCLE SAFTEY WALL ART (x39) | WALL ART BICYCLE SAFTEY  (x3)"
+    },
+    {
+      "STOCK_CODE": 23413,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "VINTAGE COFFEE GRINDER BOX (x23) | DECORATIVE VINTAGE COFFEE  BOX (x16) | DECROTIVEVINTAGE COFFEE GRINDER BOX (x4)"
+    },
+    {
+      "STOCK_CODE": 23396,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "LE JARDIN BOTANIQUE CUSHION COVER (x144) | LA JARDIN BOTANIQUE CUSHION COVER (x23) | BUTTERFLY CUSHION COVER (x2)"
+    },
+    {
+      "STOCK_CODE": 23126,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "FELTCRAFT GIRL AMELIE KIT (x257) | DOLLCRAFT GIRL AMELIE KIT (x8) | DOLLCRAFT GIRL AMELIE (x8)"
+    },
+    {
+      "STOCK_CODE": 23131,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "MISTLETOE HEART WREATH CREAM (x104) | MISELTOE HEART WREATH WHITE (x4) | MISELTOE HEART WREATH CREAM (x1)"
+    },
+    {
+      "STOCK_CODE": 23366,
+      "VARIANTS": 3,
+      "DESCRIPTIONS": "SET 12 COLOURING PENCILS DOILY (x140) | SET 12 COLOUR PENCILS DOILEY (x3) | SET 12 COLOURING PENCILS DOILEY (x1)"
+    }
+  ],
   "model_selection": {
     "algorithm": "K-Means",
     "parameter": "k=4",
     "n_clusters": 4,
-    "silhouette": 0.3807,
-    "calinski_harabasz": 4296.5,
-    "davies_bouldin": 0.97,
-    "holdout_silhouette": 0.3823
+    "silhouette": 0.3789,
+    "calinski_harabasz": 4273.0,
+    "davies_bouldin": 0.974,
+    "holdout_silhouette": 0.3923
   },
   "model_iterations": [
     {
       "algorithm": "K-Means",
       "parameter": "k=1",
       "k": 1.0,
-      "sse": 30084.9,
+      "sse": 29965.9,
       "n_clusters": 1,
       "silhouette": NaN,
       "calinski_harabasz": NaN,
@@ -243,121 +566,121 @@
       "algorithm": "K-Means",
       "parameter": "k=2",
       "k": 2.0,
-      "sse": 12794.0,
+      "sse": 12761.4,
       "n_clusters": 2,
-      "silhouette": 0.4699,
-      "calinski_harabasz": 5692.4,
-      "davies_bouldin": 0.8079,
+      "silhouette": 0.4694,
+      "calinski_harabasz": 5660.9,
+      "davies_bouldin": 0.8092,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=3",
       "k": 3.0,
-      "sse": 9564.9,
+      "sse": 9553.7,
       "n_clusters": 3,
-      "silhouette": 0.3727,
-      "calinski_harabasz": 4517.0,
-      "davies_bouldin": 1.0538,
+      "silhouette": 0.3713,
+      "calinski_harabasz": 4484.7,
+      "davies_bouldin": 1.0566,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=4",
       "k": 4.0,
-      "sse": 7407.2,
+      "sse": 7391.1,
       "n_clusters": 4,
-      "silhouette": 0.3807,
-      "calinski_harabasz": 4296.5,
-      "davies_bouldin": 0.97,
+      "silhouette": 0.3789,
+      "calinski_harabasz": 4273.0,
+      "davies_bouldin": 0.974,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=5",
       "k": 5.0,
-      "sse": 6157.1,
+      "sse": 6152.2,
       "n_clusters": 5,
-      "silhouette": 0.3673,
-      "calinski_harabasz": 4089.3,
-      "davies_bouldin": 1.012,
+      "silhouette": 0.366,
+      "calinski_harabasz": 4060.5,
+      "davies_bouldin": 1.0157,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=6",
       "k": 6.0,
-      "sse": 5261.7,
+      "sse": 5258.7,
       "n_clusters": 6,
-      "silhouette": 0.363,
-      "calinski_harabasz": 3970.4,
-      "davies_bouldin": 0.9404,
+      "silhouette": 0.362,
+      "calinski_harabasz": 3941.9,
+      "davies_bouldin": 0.9414,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=7",
       "k": 7.0,
-      "sse": 4568.0,
+      "sse": 4578.1,
       "n_clusters": 7,
-      "silhouette": 0.3651,
-      "calinski_harabasz": 3916.7,
-      "davies_bouldin": 0.9175,
+      "silhouette": 0.3683,
+      "calinski_harabasz": 3876.7,
+      "davies_bouldin": 0.9151,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=8",
       "k": 8.0,
-      "sse": 4130.5,
+      "sse": 4140.6,
       "n_clusters": 8,
-      "silhouette": 0.3514,
-      "calinski_harabasz": 3775.6,
-      "davies_bouldin": 0.9788,
+      "silhouette": 0.3496,
+      "calinski_harabasz": 3736.0,
+      "davies_bouldin": 0.983,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=9",
       "k": 9.0,
-      "sse": 3742.6,
+      "sse": 3741.6,
       "n_clusters": 9,
-      "silhouette": 0.3512,
-      "calinski_harabasz": 3699.6,
-      "davies_bouldin": 0.9944,
+      "silhouette": 0.3511,
+      "calinski_harabasz": 3672.6,
+      "davies_bouldin": 0.9906,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=10",
       "k": 10.0,
-      "sse": 3472.8,
+      "sse": 3475.8,
       "n_clusters": 10,
-      "silhouette": 0.3385,
-      "calinski_harabasz": 3579.4,
-      "davies_bouldin": 0.9993,
+      "silhouette": 0.3388,
+      "calinski_harabasz": 3549.0,
+      "davies_bouldin": 0.9995,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=11",
       "k": 11.0,
-      "sse": 3245.7,
+      "sse": 3244.3,
       "n_clusters": 11,
-      "silhouette": 0.3334,
-      "calinski_harabasz": 3475.6,
-      "davies_bouldin": 1.0162,
+      "silhouette": 0.3349,
+      "calinski_harabasz": 3451.1,
+      "davies_bouldin": 1.0174,
       "noise_points": NaN
     },
     {
       "algorithm": "K-Means",
       "parameter": "k=12",
       "k": 12.0,
-      "sse": 3046.2,
+      "sse": 3047.5,
       "n_clusters": 12,
-      "silhouette": 0.3297,
-      "calinski_harabasz": 3390.9,
-      "davies_bouldin": 0.9941,
+      "silhouette": 0.3285,
+      "calinski_harabasz": 3363.8,
+      "davies_bouldin": 1.0203,
       "noise_points": NaN
     },
     {
@@ -366,9 +689,9 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 116,
-      "silhouette": 0.254,
-      "calinski_harabasz": 1357.3,
-      "davies_bouldin": 0.9434,
+      "silhouette": 0.2631,
+      "calinski_harabasz": 1378.2,
+      "davies_bouldin": 0.9589,
       "noise_points": NaN
     },
     {
@@ -376,10 +699,10 @@
       "parameter": "bandwidth=0.6",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 56,
-      "silhouette": 0.2489,
-      "calinski_harabasz": 1593.2,
-      "davies_bouldin": 1.0888,
+      "n_clusters": 60,
+      "silhouette": 0.2636,
+      "calinski_harabasz": 1337.5,
+      "davies_bouldin": 1.071,
       "noise_points": NaN
     },
     {
@@ -387,10 +710,10 @@
       "parameter": "bandwidth=0.7",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 29,
-      "silhouette": 0.2303,
-      "calinski_harabasz": 1524.0,
-      "davies_bouldin": 1.2038,
+      "n_clusters": 27,
+      "silhouette": 0.242,
+      "calinski_harabasz": 1541.4,
+      "davies_bouldin": 1.1397,
       "noise_points": NaN
     },
     {
@@ -398,10 +721,10 @@
       "parameter": "bandwidth=0.8",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 16,
-      "silhouette": 0.2745,
-      "calinski_harabasz": 1939.9,
-      "davies_bouldin": 1.2498,
+      "n_clusters": 17,
+      "silhouette": 0.265,
+      "calinski_harabasz": 1808.4,
+      "davies_bouldin": 1.2344,
       "noise_points": NaN
     },
     {
@@ -409,10 +732,10 @@
       "parameter": "bandwidth=0.9",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 10,
-      "silhouette": 0.307,
-      "calinski_harabasz": 2602.6,
-      "davies_bouldin": 1.0951,
+      "n_clusters": 11,
+      "silhouette": 0.2955,
+      "calinski_harabasz": 2441.6,
+      "davies_bouldin": 1.132,
       "noise_points": NaN
     },
     {
@@ -421,9 +744,9 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 7,
-      "silhouette": 0.2921,
-      "calinski_harabasz": 2673.7,
-      "davies_bouldin": 1.2219,
+      "silhouette": 0.2871,
+      "calinski_harabasz": 2677.2,
+      "davies_bouldin": 1.2105,
       "noise_points": NaN
     },
     {
@@ -432,9 +755,9 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 5,
-      "silhouette": 0.306,
-      "calinski_harabasz": 2749.6,
-      "davies_bouldin": 1.261,
+      "silhouette": 0.3292,
+      "calinski_harabasz": 2768.9,
+      "davies_bouldin": 1.2106,
       "noise_points": NaN
     },
     {
@@ -443,9 +766,9 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 4,
-      "silhouette": 0.3352,
-      "calinski_harabasz": 3183.6,
-      "davies_bouldin": 1.1094,
+      "silhouette": 0.3321,
+      "calinski_harabasz": 3144.7,
+      "davies_bouldin": 1.1079,
       "noise_points": NaN
     },
     {
@@ -454,9 +777,9 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 4,
-      "silhouette": 0.3271,
-      "calinski_harabasz": 3159.7,
-      "davies_bouldin": 1.0679,
+      "silhouette": 0.3233,
+      "calinski_harabasz": 3126.1,
+      "davies_bouldin": 1.0422,
       "noise_points": NaN
     },
     {
@@ -465,9 +788,9 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 3,
-      "silhouette": 0.3664,
-      "calinski_harabasz": 4377.7,
-      "davies_bouldin": 1.0002,
+      "silhouette": 0.3657,
+      "calinski_harabasz": 4353.0,
+      "davies_bouldin": 1.0043,
       "noise_points": NaN
     },
     {
@@ -476,9 +799,9 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 3,
-      "silhouette": 0.3694,
-      "calinski_harabasz": 4432.1,
-      "davies_bouldin": 1.0105,
+      "silhouette": 0.3684,
+      "calinski_harabasz": 4400.3,
+      "davies_bouldin": 1.0125,
       "noise_points": NaN
     },
     {
@@ -486,10 +809,10 @@
       "parameter": "bandwidth=1.6",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 3,
-      "silhouette": 0.3708,
-      "calinski_harabasz": 4463.8,
-      "davies_bouldin": 1.0275,
+      "n_clusters": 2,
+      "silhouette": 0.4688,
+      "calinski_harabasz": 5644.1,
+      "davies_bouldin": 0.811,
       "noise_points": NaN
     },
     {
@@ -497,33 +820,33 @@
       "parameter": "eps=0.20, min_samples=5",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 52,
-      "silhouette": -0.134,
-      "calinski_harabasz": 210.2,
-      "davies_bouldin": 1.735,
-      "noise_points": 722.0
+      "n_clusters": 53,
+      "silhouette": -0.1537,
+      "calinski_harabasz": 199.4,
+      "davies_bouldin": 2.2229,
+      "noise_points": 741.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.20, min_samples=15",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 12,
-      "silhouette": -0.2776,
-      "calinski_harabasz": 366.8,
-      "davies_bouldin": 1.0816,
-      "noise_points": 2730.0
+      "n_clusters": 9,
+      "silhouette": -0.2754,
+      "calinski_harabasz": 459.6,
+      "davies_bouldin": 1.0961,
+      "noise_points": 2767.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.20, min_samples=25",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 3,
-      "silhouette": -0.0993,
-      "calinski_harabasz": 679.8,
-      "davies_bouldin": 0.7618,
-      "noise_points": 3447.0
+      "n_clusters": 4,
+      "silhouette": -0.1072,
+      "calinski_harabasz": 526.5,
+      "davies_bouldin": 0.7788,
+      "noise_points": 3413.0
     },
     {
       "algorithm": "DBSCAN",
@@ -531,43 +854,43 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 2,
-      "silhouette": -0.043,
-      "calinski_harabasz": 700.0,
-      "davies_bouldin": 0.7306,
-      "noise_points": 3665.0
+      "silhouette": -0.049,
+      "calinski_harabasz": 668.7,
+      "davies_bouldin": 0.7232,
+      "noise_points": 3679.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.20, min_samples=45",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 3,
-      "silhouette": -0.1521,
-      "calinski_harabasz": 233.2,
-      "davies_bouldin": 0.7898,
-      "noise_points": 3935.0
+      "n_clusters": 2,
+      "silhouette": -0.1367,
+      "calinski_harabasz": 297.1,
+      "davies_bouldin": 0.6728,
+      "noise_points": 3955.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.25, min_samples=5",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 24,
-      "silhouette": -0.1434,
-      "calinski_harabasz": 430.3,
-      "davies_bouldin": 2.8527,
-      "noise_points": 351.0
+      "n_clusters": 21,
+      "silhouette": -0.157,
+      "calinski_harabasz": 480.3,
+      "davies_bouldin": 2.7964,
+      "noise_points": 364.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.25, min_samples=15",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 19,
-      "silhouette": -0.2521,
-      "calinski_harabasz": 361.1,
-      "davies_bouldin": 1.6,
-      "noise_points": 1963.0
+      "n_clusters": 14,
+      "silhouette": -0.1822,
+      "calinski_harabasz": 453.6,
+      "davies_bouldin": 1.7343,
+      "noise_points": 2017.0
     },
     {
       "algorithm": "DBSCAN",
@@ -575,21 +898,21 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 5,
-      "silhouette": -0.0959,
-      "calinski_harabasz": 858.2,
-      "davies_bouldin": 0.9745,
-      "noise_points": 2802.0
+      "silhouette": -0.1036,
+      "calinski_harabasz": 828.6,
+      "davies_bouldin": 0.9868,
+      "noise_points": 2823.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.25, min_samples=35",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 2,
-      "silhouette": 0.0414,
-      "calinski_harabasz": 1135.0,
-      "davies_bouldin": 0.7577,
-      "noise_points": 3387.0
+      "n_clusters": 3,
+      "silhouette": -0.0252,
+      "calinski_harabasz": 756.5,
+      "davies_bouldin": 0.742,
+      "noise_points": 3380.0
     },
     {
       "algorithm": "DBSCAN",
@@ -597,65 +920,65 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 2,
-      "silhouette": -0.0012,
-      "calinski_harabasz": 889.7,
-      "davies_bouldin": 0.7385,
-      "noise_points": 3536.0
+      "silhouette": -0.0001,
+      "calinski_harabasz": 892.1,
+      "davies_bouldin": 0.7377,
+      "noise_points": 3525.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.30, min_samples=5",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 10,
-      "silhouette": 0.0732,
-      "calinski_harabasz": 968.4,
-      "davies_bouldin": 3.4851,
-      "noise_points": 204.0
+      "n_clusters": 12,
+      "silhouette": 0.0311,
+      "calinski_harabasz": 815.3,
+      "davies_bouldin": 3.2361,
+      "noise_points": 195.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.30, min_samples=15",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 17,
-      "silhouette": -0.0508,
-      "calinski_harabasz": 533.7,
-      "davies_bouldin": 1.9685,
-      "noise_points": 1048.0
+      "n_clusters": 18,
+      "silhouette": -0.0721,
+      "calinski_harabasz": 498.2,
+      "davies_bouldin": 1.9324,
+      "noise_points": 1074.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.30, min_samples=25",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 6,
-      "silhouette": -0.1134,
-      "calinski_harabasz": 977.2,
-      "davies_bouldin": 1.9738,
-      "noise_points": 2294.0
+      "n_clusters": 7,
+      "silhouette": -0.1208,
+      "calinski_harabasz": 863.5,
+      "davies_bouldin": 1.8997,
+      "noise_points": 2248.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.30, min_samples=35",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 2,
-      "silhouette": 0.1821,
-      "calinski_harabasz": 2156.3,
-      "davies_bouldin": 0.842,
-      "noise_points": 2788.0
+      "n_clusters": 4,
+      "silhouette": -0.0717,
+      "calinski_harabasz": 1098.3,
+      "davies_bouldin": 1.012,
+      "noise_points": 2750.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.30, min_samples=45",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 4,
-      "silhouette": -0.0673,
-      "calinski_harabasz": 744.6,
-      "davies_bouldin": 0.7975,
-      "noise_points": 3180.0
+      "n_clusters": 3,
+      "silhouette": -0.0391,
+      "calinski_harabasz": 933.3,
+      "davies_bouldin": 0.7854,
+      "noise_points": 3227.0
     },
     {
       "algorithm": "DBSCAN",
@@ -663,43 +986,43 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 5,
-      "silhouette": 0.2095,
-      "calinski_harabasz": 1884.1,
-      "davies_bouldin": 5.5095,
-      "noise_points": 132.0
+      "silhouette": 0.2083,
+      "calinski_harabasz": 1872.9,
+      "davies_bouldin": 4.9194,
+      "noise_points": 127.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.35, min_samples=15",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 5,
-      "silhouette": 0.1778,
-      "calinski_harabasz": 1797.7,
-      "davies_bouldin": 6.4555,
-      "noise_points": 597.0
+      "n_clusters": 6,
+      "silhouette": 0.1275,
+      "calinski_harabasz": 1505.8,
+      "davies_bouldin": 5.2657,
+      "noise_points": 572.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.35, min_samples=25",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 9,
-      "silhouette": -0.0229,
-      "calinski_harabasz": 868.4,
-      "davies_bouldin": 2.0618,
-      "noise_points": 1505.0
+      "n_clusters": 10,
+      "silhouette": -0.0059,
+      "calinski_harabasz": 804.0,
+      "davies_bouldin": 2.0219,
+      "noise_points": 1545.0
     },
     {
       "algorithm": "DBSCAN",
       "parameter": "eps=0.35, min_samples=35",
       "k": NaN,
       "sse": NaN,
-      "n_clusters": 4,
-      "silhouette": -0.0255,
-      "calinski_harabasz": 1490.0,
-      "davies_bouldin": 1.1912,
-      "noise_points": 2327.0
+      "n_clusters": 3,
+      "silhouette": 0.091,
+      "calinski_harabasz": 1958.2,
+      "davies_bouldin": 1.2419,
+      "noise_points": 2332.0
     },
     {
       "algorithm": "DBSCAN",
@@ -707,10 +1030,10 @@
       "k": NaN,
       "sse": NaN,
       "n_clusters": 3,
-      "silhouette": 0.0225,
-      "calinski_harabasz": 1615.2,
-      "davies_bouldin": 1.1236,
-      "noise_points": 2637.0
+      "silhouette": 0.0188,
+      "calinski_harabasz": 1589.4,
+      "davies_bouldin": 1.1224,
+      "noise_points": 2644.0
     },
     {
       "algorithm": "Agglomerative",
@@ -718,9 +1041,9 @@
       "k": 2.0,
       "sse": NaN,
       "n_clusters": 2,
-      "silhouette": 0.4269,
-      "calinski_harabasz": 4207.8,
-      "davies_bouldin": 0.8464,
+      "silhouette": 0.4309,
+      "calinski_harabasz": 4601.3,
+      "davies_bouldin": 0.8096,
       "noise_points": NaN
     },
     {
@@ -729,9 +1052,9 @@
       "k": 3.0,
       "sse": NaN,
       "n_clusters": 3,
-      "silhouette": 0.3416,
-      "calinski_harabasz": 3932.8,
-      "davies_bouldin": 1.0962,
+      "silhouette": 0.3554,
+      "calinski_harabasz": 4148.3,
+      "davies_bouldin": 1.1489,
       "noise_points": NaN
     },
     {
@@ -740,9 +1063,9 @@
       "k": 4.0,
       "sse": NaN,
       "n_clusters": 4,
-      "silhouette": 0.3219,
-      "calinski_harabasz": 3460.0,
-      "davies_bouldin": 1.0811,
+      "silhouette": 0.334,
+      "calinski_harabasz": 3478.8,
+      "davies_bouldin": 1.1653,
       "noise_points": NaN
     },
     {
@@ -751,8 +1074,8 @@
       "k": 5.0,
       "sse": NaN,
       "n_clusters": 5,
-      "silhouette": 0.3272,
-      "calinski_harabasz": 3388.4,
+      "silhouette": 0.3253,
+      "calinski_harabasz": 3285.7,
       "davies_bouldin": 1.0605,
       "noise_points": NaN
     },
@@ -762,9 +1085,9 @@
       "k": 6.0,
       "sse": NaN,
       "n_clusters": 6,
-      "silhouette": 0.3037,
-      "calinski_harabasz": 3257.8,
-      "davies_bouldin": 1.0556,
+      "silhouette": 0.2873,
+      "calinski_harabasz": 3171.2,
+      "davies_bouldin": 1.1461,
       "noise_points": NaN
     },
     {
@@ -773,9 +1096,9 @@
       "k": 7.0,
       "sse": NaN,
       "n_clusters": 7,
-      "silhouette": 0.3058,
-      "calinski_harabasz": 3195.6,
-      "davies_bouldin": 1.0316,
+      "silhouette": 0.2881,
+      "calinski_harabasz": 3099.2,
+      "davies_bouldin": 1.0961,
       "noise_points": NaN
     },
     {
@@ -784,9 +1107,9 @@
       "k": 8.0,
       "sse": NaN,
       "n_clusters": 8,
-      "silhouette": 0.3131,
-      "calinski_harabasz": 3198.1,
-      "davies_bouldin": 1.1371,
+      "silhouette": 0.2866,
+      "calinski_harabasz": 3096.3,
+      "davies_bouldin": 1.062,
       "noise_points": NaN
     },
     {
@@ -795,9 +1118,9 @@
       "k": 9.0,
       "sse": NaN,
       "n_clusters": 9,
-      "silhouette": 0.3047,
-      "calinski_harabasz": 3077.0,
-      "davies_bouldin": 1.1087,
+      "silhouette": 0.2933,
+      "calinski_harabasz": 3051.4,
+      "davies_bouldin": 1.1242,
       "noise_points": NaN
     },
     {
@@ -806,9 +1129,9 @@
       "k": 10.0,
       "sse": NaN,
       "n_clusters": 10,
-      "silhouette": 0.303,
-      "calinski_harabasz": 2956.6,
-      "davies_bouldin": 1.0827,
+      "silhouette": 0.2879,
+      "calinski_harabasz": 2927.2,
+      "davies_bouldin": 1.0881,
       "noise_points": NaN
     },
     {
@@ -817,9 +1140,9 @@
       "k": 11.0,
       "sse": NaN,
       "n_clusters": 11,
-      "silhouette": 0.2927,
-      "calinski_harabasz": 2880.3,
-      "davies_bouldin": 1.1147,
+      "silhouette": 0.2548,
+      "calinski_harabasz": 2827.7,
+      "davies_bouldin": 1.0675,
       "noise_points": NaN
     },
     {
@@ -828,57 +1151,57 @@
       "k": 12.0,
       "sse": NaN,
       "n_clusters": 12,
-      "silhouette": 0.2827,
-      "calinski_harabasz": 2814.3,
-      "davies_bouldin": 1.1141,
+      "silhouette": 0.2581,
+      "calinski_harabasz": 2764.9,
+      "davies_bouldin": 1.0676,
       "noise_points": NaN
     }
   ],
   "segment_profile": {
     "Gold": {
-      "CUSTOMERS": 1270,
-      "CUSTOMER_PCT": 30.1,
-      "MEAN_RECENCY": 17.2,
-      "MEAN_FREQUENCY": 9.1,
-      "MEAN_MONETARY": 4893.64,
-      "MEAN_AOV": 516.74,
-      "MEAN_RFM_SCORE": 10.93,
+      "CUSTOMERS": 1244,
+      "CUSTOMER_PCT": 29.6,
+      "MEAN_RECENCY": 17.1,
+      "MEAN_FREQUENCY": 9.22,
+      "MEAN_MONETARY": 4721.92,
+      "MEAN_AOV": 442.75,
+      "MEAN_RFM_SCORE": 10.96,
       "UK_PCT": 89.7,
-      "TRANSACTIONS": 11560,
-      "REVENUE": 6214927.81,
+      "TRANSACTIONS": 11467,
+      "REVENUE": 5874066.76,
       "REVENUE_PCT": 76.1,
-      "ARPC": 4893.64,
-      "ARPT": 537.62
+      "ARPC": 4721.92,
+      "ARPT": 512.26
     },
     "Silver": {
-      "CUSTOMERS": 1783,
+      "CUSTOMERS": 1777,
       "CUSTOMER_PCT": 42.3,
-      "MEAN_RECENCY": 67.2,
-      "MEAN_FREQUENCY": 2.35,
-      "MEAN_MONETARY": 893.52,
-      "MEAN_AOV": 428.19,
-      "MEAN_RFM_SCORE": 7.21,
-      "UK_PCT": 90.2,
-      "TRANSACTIONS": 4187,
-      "REVENUE": 1593146.85,
-      "REVENUE_PCT": 19.5,
-      "ARPC": 893.52,
-      "ARPT": 380.5
+      "MEAN_RECENCY": 65.3,
+      "MEAN_FREQUENCY": 2.38,
+      "MEAN_MONETARY": 831.91,
+      "MEAN_AOV": 373.51,
+      "MEAN_RFM_SCORE": 7.27,
+      "UK_PCT": 90.4,
+      "TRANSACTIONS": 4229,
+      "REVENUE": 1478308.03,
+      "REVENUE_PCT": 19.1,
+      "ARPC": 831.91,
+      "ARPT": 349.56
     },
     "Bronze": {
-      "CUSTOMERS": 1161,
-      "CUSTOMER_PCT": 27.6,
-      "MEAN_RECENCY": 186.3,
-      "MEAN_FREQUENCY": 1.09,
-      "MEAN_MONETARY": 313.48,
-      "MEAN_AOV": 303.03,
-      "MEAN_RFM_SCORE": 4.2,
-      "UK_PCT": 91.4,
-      "TRANSACTIONS": 1261,
-      "REVENUE": 363953.42,
-      "REVENUE_PCT": 4.5,
-      "ARPC": 313.48,
-      "ARPT": 288.62
+      "CUSTOMERS": 1180,
+      "CUSTOMER_PCT": 28.1,
+      "MEAN_RECENCY": 185.4,
+      "MEAN_FREQUENCY": 1.1,
+      "MEAN_MONETARY": 312.86,
+      "MEAN_AOV": 300.17,
+      "MEAN_RFM_SCORE": 4.22,
+      "UK_PCT": 91.1,
+      "TRANSACTIONS": 1298,
+      "REVENUE": 369176.85,
+      "REVENUE_PCT": 4.8,
+      "ARPC": 312.86,
+      "ARPT": 284.42
     }
   }
 }

@@ -76,19 +76,23 @@ A full run takes roughly 4 minutes; Stage 6 accounts for most of it.
 ## Data & Approach
 
 - **Source:** `Project_2_Sales_Data.xlsx` — 379,979 line items, 8 columns, full-year 2021.
-- **Cleansing:** 14,398 records removed (3.8%); **365,581** clean transaction lines retained.
-- **Customers:** **4,214** unique customers profiled on R/F/M.
+- **Cleansing:** 6,558 records dropped (duplicates, service codes, non-positive price);
+  **365,581** purchase lines retained.
+- **Cancellations:** **retained, not deleted** — 7,840 lines netted against customer value,
+  correcting a GBP 454,445 (5.89%) overstatement. Negative quantity and the `C` invoice
+  prefix are an exact 1:1 equivalence in this source.
+- **Customers:** **4,201** profiled on R/F/M (13 dropped as net non-positive after refunds).
 - **Model input:** R/F/M percentile ratings (0–5), so all three behaviors share one scale.
 - **Selected model:** **K-Means, k=4** — best on all three validity metrics
-  (silhouette 0.381, Calinski-Harabasz 4,296.5, Davies-Bouldin 0.970).
+  (silhouette 0.379, Calinski-Harabasz 4,273.0, Davies-Bouldin 0.974).
 
 ### Segments
 
 | Segment | Customers | % of base | % of revenue | Mean recency | Mean frequency |
 | ------- | --------: | --------: | -----------: | -----------: | -------------: |
-| Gold    | 1,270 | 30.1% | **76.1%** | 17 days  | 9.10 |
-| Silver  | 1,783 | 42.3% | 19.5%     | 67 days  | 2.35 |
-| Bronze  | 1,161 | 27.6% | 4.5%      | 186 days | 1.09 |
+| Gold    | 1,244 | 29.6% | **76.1%** | 17 days  | 9.22 |
+| Silver  | 1,777 | 42.3% | 19.1%     | 65 days  | 2.38 |
+| Bronze  | 1,180 | 28.1% | 4.8%      | 185 days | 1.10 |
 
 - **Next milestone:** map each segment to a concrete campaign recommendation and build
   the business-facing presentation.

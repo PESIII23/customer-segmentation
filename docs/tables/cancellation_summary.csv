@@ -1,0 +1,12 @@
+,value
+cancellation_lines,7840.0
+purchase_lines,365581.0
+refund_value,454445.07
+gross_revenue,8172028.08
+net_revenue,7717583.01
+overstatement_pct,5.89
+customers_with_cancellation,1420.0
+customers_total,4214.0
+median_refund_ratio_pct,2.0
+customers_refund_over_50pct,26.0
+customers_net_nonpositive,13.0

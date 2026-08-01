@@ -91,11 +91,16 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 - **Modules:** `preprocessing/data_preparation.py` (clean), `preprocessing/data_transformation.py` (RFM), `viz/eda.py` (tables + plots), `modeling/clustering.py` (segmentation)
 - **Runtime:** a full run is ~4 min; Stage 6's Mean Shift and DBSCAN sweeps dominate
 
-### Data Facts (verified 2026-07-08)
+### Data Facts (verified 2026-08-01)
 - Raw: 379,979 line items, 8 columns, dates 2021-01-04 → 2021-12-09
 - No missing values in any column; `CustomerID` fully populated → **no imputation required**
-- Cleansing removed 14,398 rows (3.8%): duplicates 4,729; cancellations 8,191; non-product service codes 1,448; non-positive qty/price 30
-- Clean master: 365,581 transactions; RFM table: 4,214 customers; snapshot 2021-12-10
+- Cleansing drops 6,558 rows: duplicates 4,729; non-product service codes 1,799; non-positive price 30
+- Cancellations are **retained, not deleted**: 7,840 lines held back and netted against customer value
+- Transaction master: 365,581 purchase lines; RFM table: 4,201 customers; snapshot 2021-12-10
+- Negative quantity ⟺ "C" invoice prefix is an exact 1:1 equivalence (8,215 raw rows, no exceptions)
+- Netting removes GBP 454,445 (5.89%) of overstated revenue; 13 net-non-positive customers dropped
+- No **Friday** trading anywhere in the source; trading window 06:00–20:00, 77% of revenue 10:00–15:59
+- 191 of 3,590 stock codes (5.3%) carry >1 description → StockCode is the reliable product key
 - UK = 89% of line items; strong Q4 (Sep–Nov) revenue seasonality
 
 ### Model Facts (verified 2026-07-26)
@@ -162,6 +167,8 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 | Date       | Change                                                                       | Type   |
 |------------|------------------------------------------------------------------------------|--------|
 | 2026-07-08 | Built Milestone 1 pipeline (cleansing, RFM, EDA modules), portable paths, and the EDA & Data Cleansing deliverable | feat   |
+| 2026-08-01 | Milestone 2: clustering models (4 techniques, 55 fits), Gold/Silver/Bronze banding | feat |
+| 2026-08-01 | M1 review response: cancellations netted instead of deleted; added temporal, cancellation and product/description EDA (`viz/eda_addendum.py`) | feat |
 | 2026-07-26 | Added `modeling/clustering.py` (4 clustering iterations, metric-based selection, Gold/Silver/Bronze banding), wired in as pipeline Stage 6, and generated the Data Wrangling & Model Output deliverable | feat   |
 
 ---

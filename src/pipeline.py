@@ -20,7 +20,7 @@ import pandas as pd
 
 from src.modeling import clustering
 from src.preprocessing import data_preparation, data_transformation
-from src.viz import eda
+from src.viz import eda, eda_addendum
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,6 +28,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 class Paths:
     RAW_FILE = PROJECT_ROOT / "src" / "data" / "raw" / "Project_2_Sales_Data.xlsx"
     CLEAN_PARQUET = PROJECT_ROOT / "src" / "data" / "processed" / "transactions_clean.parquet"
+    CANCELLATIONS_PARQUET = PROJECT_ROOT / "src" / "data" / "processed" / "cancellations.parquet"
     RFM_PARQUET = PROJECT_ROOT / "src" / "data" / "processed" / "rfm_customer.parquet"
     RFM_CSV = PROJECT_ROOT / "src" / "data" / "processed" / "rfm_customer.csv"
     SEGMENTS_PARQUET = PROJECT_ROOT / "src" / "data" / "processed" / "customer_segments.parquet"
@@ -57,17 +58,19 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame, pd.D
 
     # STAGE 2: CLEAN --------------------------------------------------------
     log("\n[2/6] CLEANING DATA...")
-    clean_df, report = data_preparation.clean_data(raw)
+    clean_df, cancellations, report = data_preparation.clean_data(raw)
     stats["cleaning_report"] = report
     for k, v in report.items():
         log(f"      {k}: {v:,}")
 
     # STAGE 3: TRANSFORM (RFM) ---------------------------------------------
     log("\n[3/6] BUILDING CUSTOMER RFM TABLE...")
-    rfm, snapshot = data_transformation.transform_data(clean_df)
+    rfm, snapshot, dropped_customers = data_transformation.transform_data(clean_df, cancellations)
     stats["snapshot_date"] = str(snapshot.date())
     stats["n_customers"] = int(len(rfm))
-    log(f"      Snapshot date: {snapshot.date()} | Customers: {len(rfm):,}")
+    stats["dropped_net_nonpositive_customers"] = dropped_customers
+    log(f"      Snapshot date: {snapshot.date()} | Customers: {len(rfm):,} "
+        f"({dropped_customers} dropped as net non-positive)")
 
     # STAGE 4: EDA ----------------------------------------------------------
     log("\n[4/6] PERFORMING EDA...")
@@ -108,6 +111,10 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame, pd.D
     corr = e.plot_correlation_matrix(
         rfm, ["RECENCY", "FREQUENCY", "MONETARY", "AVG_ORDER_VALUE"], "eda_correlation")
     stats["rfm_correlation"] = corr.to_dict("index")
+
+    # Addendum analyses raised in Milestone 1 review: temporal patterns,
+    # cancellation handling, and product/description consistency.
+    stats.update(eda_addendum.run_addendum(clean_df, cancellations, log=log))
     log("      Tables -> docs/tables/ | Figures -> docs/eda_*/")
 
     # STAGE 5: EXPORT -------------------------------------------------------
@@ -118,7 +125,12 @@ def run_pipeline(verbose: bool = True) -> tuple[pd.DataFrame, pd.DataFrame, pd.D
     clean_out.to_parquet(Paths.CLEAN_PARQUET, index=False)
     rfm.to_parquet(Paths.RFM_PARQUET, index=False)
     rfm.to_csv(Paths.RFM_CSV, index=False)
+    # Cancellations are exported alongside so the netting is auditable.
+    canc_out = cancellations.astype(
+        {c: "string" for c in cancellations.select_dtypes("object").columns})
+    canc_out.to_parquet(Paths.CANCELLATIONS_PARQUET, index=False)
     log(f"      Clean transactions: {clean_df.shape} -> {Paths.CLEAN_PARQUET.name}")
+    log(f"      Cancellations:      {cancellations.shape} -> {Paths.CANCELLATIONS_PARQUET.name}")
     log(f"      RFM customers:      {rfm.shape} -> {Paths.RFM_PARQUET.name}")
 
     # STAGE 6: SEGMENTATION -------------------------------------------------
