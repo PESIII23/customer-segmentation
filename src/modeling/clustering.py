@@ -60,9 +60,12 @@ def build_rfm_ratings(rfm: pd.DataFrame, transactions: pd.DataFrame) -> pd.DataF
     df["COUNTRY"] = df["CUSTOMER_ID"].map(country)
     df["IS_UK"] = (df["COUNTRY"] == "United Kingdom").astype(int)
 
+    # Both sides gross: MONETARY is net of refunds, and dividing gross Q4 spend by
+    # a near-zero net denominator blows the ratio up for heavily-refunded customers.
     q4_spend = (transactions[transactions["INVOICE_DATE"].dt.month >= 9]
                 .groupby("CUSTOMER_ID")["TOTAL_PRICE"].sum())
-    df["Q4_SPEND_SHARE"] = (df["CUSTOMER_ID"].map(q4_spend).fillna(0) / df["MONETARY"]).round(4)
+    denom = df["GROSS_MONETARY"] if "GROSS_MONETARY" in df else df["MONETARY"]
+    df["Q4_SPEND_SHARE"] = (df["CUSTOMER_ID"].map(q4_spend).fillna(0) / denom).round(4)
     return df
 
 

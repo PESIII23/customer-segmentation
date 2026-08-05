@@ -41,9 +41,11 @@ class TransformData:
         rfm['MONETARY'] = rfm['GROSS_MONETARY'] - rfm['REFUNDS']
 
         # A customer whose refunds meet or exceed their spend has no positive value
-        # to segment on, and would break the log/ratio features downstream.
-        dropped = int((rfm['MONETARY'] <= 0).sum())
-        rfm = rfm[rfm['MONETARY'] > 0].reset_index(drop=True)
+        # to segment on, and would break the log/ratio features downstream. The
+        # threshold is a penny rather than zero: a full refund leaves float residue
+        # (e.g. 306.72 - 306.72 = 5.7e-14) that would otherwise survive a > 0 test.
+        dropped = int((rfm['MONETARY'] < 0.01).sum())
+        rfm = rfm[rfm['MONETARY'] >= 0.01].reset_index(drop=True)
         self.dropped_nonpositive_customers = dropped
 
         rfm['AVG_ORDER_VALUE'] = rfm['MONETARY'] / rfm['FREQUENCY']

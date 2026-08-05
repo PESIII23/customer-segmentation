@@ -96,23 +96,27 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 - No missing values in any column; `CustomerID` fully populated → **no imputation required**
 - Cleansing drops 6,558 rows: duplicates 4,729; non-product service codes 1,799; non-positive price 30
 - Cancellations are **retained, not deleted**: 7,840 lines held back and netted against customer value
-- Transaction master: 365,581 purchase lines; RFM table: 4,201 customers; snapshot 2021-12-10
+- Transaction master: 365,581 purchase lines; RFM table: 4,199 customers; snapshot 2021-12-10
 - Negative quantity ⟺ "C" invoice prefix is an exact 1:1 equivalence (8,215 raw rows, no exceptions)
-- Netting removes GBP 454,445 (5.89%) of overstated revenue; 13 net-non-positive customers dropped
+- Netting removes GBP 454,445 (5.89%) of overstated revenue; 15 net-non-positive customers dropped
 - No **Friday** trading anywhere in the source; trading window 06:00–20:00, 77% of revenue 10:00–15:59
 - 191 of 3,590 stock codes (5.3%) carry >1 description → StockCode is the reliable product key
 - UK = 89% of line items; strong Q4 (Sep–Nov) revenue seasonality
 
-### Model Facts (verified 2026-07-26)
+### Model Facts (verified 2026-08-01, post-netting)
 - Model input: R/F/M percentile ratings scaled 0–5 (ranking removes the need for a separate scaler)
-- 55 models fit across 4 techniques; best silhouette per technique: K-Means 0.470 (k=2),
-  Agglomerative 0.427 (k=2), Mean Shift 0.371 (bw=1.6), DBSCAN 0.209
-- **Selected: K-Means k=4** — wins all three metrics at ≥3 clusters
-  (silhouette 0.3807, Calinski-Harabasz 4296.5, Davies-Bouldin 0.970)
-- Holdout check (fit 80% / score unseen 20%): silhouette 0.3823 ≈ full-population 0.3807 → stable
-- Segments: Gold 1,270 (30.1% of base, 76.1% of revenue) | Silver 1,783 (42.3%, 19.5%) |
-  Bronze 1,161 (27.6%, 4.5%); total revenue GBP 8,172,028
-- Each band is 89–91% UK → the model split on behavior, not geography
+- 55 models fit across 4 techniques; best silhouette per technique: K-Means 0.469 (k=2),
+  Agglomerative 0.431 (k=2), Mean Shift 0.469 (bw=1.6, 2 clusters), DBSCAN 0.208
+- **Selected: K-Means k=4** at ≥3 clusters — silhouette 0.3789 and Davies-Bouldin 0.974 are both
+  best, but the metrics do **not** agree unanimously: Mean Shift (bw=1.5, 3 clusters) takes
+  Calinski-Harabasz 4,395.4 vs 4,269.3. Selection rests on 2 of 3, justified because silhouette and
+  DB measure per-customer cluster fit (which drives banding correctness) and the CH gap is <3%.
+- Holdout check (fit 80% / score unseen 20%): silhouette 0.3682 vs full-population 0.3789 → stable
+- Segments: Gold 1,244 (29.6% of base, 76.1% of revenue) | Silver 1,776 (42.3%, 19.1%) |
+  Bronze 1,180 (28.1%, 4.8%); total net revenue GBP 7,721,552
+- Each band is 90–91% UK → the model split on behavior, not geography
+- `Q4_SPEND_SHARE` must divide by `GROSS_MONETARY`, not net — a net denominator near zero for
+  heavily-refunded customers blows the ratio up (was producing values in the trillions)
 
 ### Key Decisions
 - Frame as **unsupervised segmentation** (no labeled target); organize around RFM
@@ -126,21 +130,22 @@ Reproduce → isolate root cause → hypothesize → apply one fix → validate 
 - Model selection restricted to **≥3 clusters**: silhouette peaks at k=2, but two clusters cannot
   express three business tiers and would merge lapsed with occasional buyers
 - With k=4 → 3 bands, the two middle clusters merge into Silver (they differ mainly on recency,
-  99d vs 25d, at similar spend) — same approach as the instructor's reference notebook
+  96d vs 25d, at similar spend) — same approach as the instructor's reference notebook
 - Bands assigned by ranking clusters on mean `RFM_SCORE`, never on raw cluster number
 - `IS_UK` and `Q4_SPEND_SHARE` are built but deliberately **excluded from the feature matrix** —
   they profile segments rather than define them
 
 ### Assumptions
-- `InvoiceNo` prefix "C" = cancellation (paired with negative quantity)
+- `InvoiceNo` prefix "C" = cancellation — **verified** as an exact 1:1 match with negative quantity
 - One customer row per `CustomerID`; `Country` is customer-level
 
 ### Open Questions
-- ~~Which clustering algorithm and k?~~ **Resolved:** K-Means, k=4 (wins all three metrics)
+- ~~Which clustering algorithm and k?~~ **Resolved:** K-Means, k=4 (best silhouette + Davies-Bouldin;
+  Mean Shift edges it on Calinski-Harabasz, see Model Facts)
 - ~~Segment on log-scaled R/F/M or include `AVG_ORDER_VALUE`?~~ **Resolved:** percentile ratings
   of R/F/M only; AOV is derived from M÷F and would double-count monetary value
-- ~~Treat non-UK customers separately or filter?~~ **Resolved:** kept all 4,214 customers;
-  bands came out 89–91% UK anyway, so a filter would have changed little and lost the
+- ~~Treat non-UK customers separately or filter?~~ **Resolved:** kept all 4,199 customers;
+  bands came out 90–91% UK anyway, so a filter would have changed little and lost the
   international opportunity
 - Milestone 3: which campaign maps to each band, and how is lift measured?
 
@@ -199,7 +204,7 @@ Never commit or force-push without approval.
 - Excel ingest of ~380K rows is the heaviest Milestone 1 step; parquet caching of cleaned output avoids re-parsing downstream
 - EDA figures are written to disk synchronously (headless `Agg` backend) — fine for offline use
 - Stage 6 is now the slowest stage (~3 of ~4 min). K-Means and Agglomerative are trivial on
-  4,214 customers; the cost is Mean Shift's 12 bandwidth fits and DBSCAN's 20-point grid, both
+  4,199 customers; the cost is Mean Shift's 12 bandwidth fits and DBSCAN's 20-point grid, both
   of which scale super-linearly. Kept as-is because the assignment requires comparing techniques.
 
 ---

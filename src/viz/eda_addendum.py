@@ -165,9 +165,13 @@ def _plot_cancellations(summary: dict, ratio: pd.Series, monthly: pd.Series):
 
 
 # ---- 3. product / description analysis --------------------------------------
-def product_profile(purchases: pd.DataFrame, top_n: int = 10
-                    ) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
-    """Top stock codes by revenue, and description consistency per stock code."""
+def product_profile(purchases: pd.DataFrame, cancellations: pd.DataFrame | None = None,
+                    top_n: int = 10) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+    """Top stock codes by revenue, and description consistency per stock code.
+
+    Reports gross and net revenue side by side: the largest gross line in this
+    dataset was refunded almost in full, which gross-only ranking would hide.
+    """
     top = (purchases.groupby("STOCK_CODE")
            .agg(DESCRIPTION=("DESCRIPTION", lambda s: s.mode().iloc[0]),
                 LINE_ITEMS=("INVOICE_ID", "size"),
@@ -177,6 +181,11 @@ def product_profile(purchases: pd.DataFrame, top_n: int = 10
                 AVG_UNIT_PRICE=("UNIT_PRICE", "mean"))
            .sort_values("REVENUE", ascending=False)
            .head(top_n).round(2))
+    refunds = (cancellations.groupby("STOCK_CODE")["TOTAL_PRICE"].sum().abs()
+               if cancellations is not None and len(cancellations) else None)
+    top["REFUNDS"] = (top.index.map(refunds).fillna(0).round(2)
+                      if refunds is not None else 0.0)
+    top["NET_REVENUE"] = (top["REVENUE"] - top["REFUNDS"]).round(2)
     top["REVENUE_PCT"] = (100 * top["REVENUE"] / purchases["TOTAL_PRICE"].sum()).round(2)
 
     # Description is free text, so the same code can carry spelling variants.
@@ -210,11 +219,17 @@ def product_profile(purchases: pd.DataFrame, top_n: int = 10
 def _plot_products(top: pd.DataFrame):
     path = _subdir("eda_products")
     labels = [f"{c} — {d[:34]}" for c, d in zip(top.index, top["DESCRIPTION"])]
-    fig, ax = plt.subplots(figsize=(12, 6))
-    bars = ax.barh(labels, top["REVENUE"], color=PRIMARY)
-    ax.bar_label(bars, fmt="%.0f", padding=3, fontsize=9)
+    import numpy as np
+    y = np.arange(len(labels))
+    fig, ax = plt.subplots(figsize=(12, 6.5))
+    b1 = ax.barh(y - 0.21, top["REVENUE"], height=0.4, color=ACCENT, label="Gross")
+    b2 = ax.barh(y + 0.21, top["NET_REVENUE"], height=0.4, color=PRIMARY, label="Net of refunds")
+    ax.bar_label(b1, fmt="%.0f", padding=3, fontsize=8)
+    ax.bar_label(b2, fmt="%.0f", padding=3, fontsize=8)
+    ax.set_yticks(y, labels)
     ax.invert_yaxis()
-    ax.set(title=f"Top {len(top)} Stock Codes by Revenue", xlabel="revenue (GBP)")
+    ax.legend(loc="lower right")
+    ax.set(title=f"Top {len(top)} Stock Codes: Gross vs Net Revenue", xlabel="revenue (GBP)")
     ax.margins(x=0.12)
     plt.tight_layout()
     plt.savefig(path / "top_stock_codes.png", dpi=110)
@@ -226,7 +241,7 @@ def run_addendum(purchases: pd.DataFrame, cancellations: pd.DataFrame, log=print
     """Run all three addendum analyses; returns a stats dict for eda_stats.json."""
     dow, hour = temporal_profile(purchases)
     cancel_summary, _ = cancellation_profile(purchases, cancellations)
-    top, variants, prod_stats = product_profile(purchases)
+    top, variants, prod_stats = product_profile(purchases, cancellations)
 
     missing = [d for d in DAYS if dow.loc[d, "TRANSACTIONS"] == 0]
     log(f"      Temporal: peak day {dow['REVENUE'].idxmax()}, "
